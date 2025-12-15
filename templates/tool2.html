@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tool 2: Image Enhancement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+        .back-btn:hover { opacity: 1; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px dashed #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+        input:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+        }
+        select:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+        .slider-group {
+            margin-bottom: 24px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #f5576c;
+            cursor: pointer;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .preview {
+            display: none;
+            margin-top: 16px;
+            text-align: center;
+        }
+        .preview.active {
+            display: block;
+        }
+        .preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #f5576c;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            display: none;
+            margin-top: 32px;
+            text-align: center;
+        }
+        .result.active {
+            display: block;
+        }
+        .result img {
+            max-width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 16px;
+        }
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-download:hover {
+            background: #059669;
+        }
+        .error {
+            display: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+        .error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Dashboard</a>
+        
+        <div class="card">
+            <h1>✨ Tool 2: Image Enhancement</h1>
+            <p class="subtitle">Transform your product photos into professional ad-quality images</p>
+
+            <form id="enhanceForm">
+                <div class="form-group">
+                    <label for="imageFile">Upload Product Image</label>
+                    <input 
+                        type="file" 
+                        id="imageFile" 
+                        accept="image/*" 
+                        required
+                    >
+                </div>
+
+                <div class="preview" id="preview">
+                    <img id="previewImage" alt="Preview">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Product Description</label>
+                    <input 
+                        type="text" 
+                        id="description" 
+                        placeholder="Example: red sneaker, luxury watch, modern laptop..."
+                        value="professional product photography"
+                    >
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <label for="strength">Strength</label>
+                        <span id="strengthValue">0.4</span>
+                    </div>
+                    <input 
+                        type="range" 
+                        id="strength" 
+                        min="0.1" 
+                        max="0.8" 
+                        step="0.1" 
+                        value="0.4"
+                    >
+                    <small style="color: #6b7280;">Lower = preserves original, Higher = more creative</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="size">Output Size</label>
+                    <select id="size">
+                        <option value="1024x1024">Square (1024x1024)</option>
+                        <option value="1024x768">Landscape (1024x768)</option>
+                        <option value="768x1024">Portrait (768x1024)</option>
+                        <option value="768x768">Square (768x768)</option>
+                        <option value="512x512">Small (512x512)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Enhance Image
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Enhancing your image... (15-30 seconds)</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="result" id="result">
+                <h3 style="margin-bottom: 16px; color: #1f2937;">Enhanced Image</h3>
+                <img id="resultImage" alt="Enhanced product image">
+                <div>
+                    <a id="downloadBtn" class="btn-download" download="enhanced-product.png">
+                        ⬇️ Download Enhanced Image
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageFile = document.getElementById('imageFile');
+        const preview = document.getElementById('preview');
+        const previewImage = document.getElementById('previewImage');
+        const strengthSlider = document.getElementById('strength');
+        const strengthValue = document.getElementById('strengthValue');
+        const form = document.getElementById('enhanceForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let base64Image = null;
+
+        // Preview uploaded image
+        imageFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    base64Image = event.target.result;
+                    previewImage.src = base64Image;
+                    preview.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Update strength value
+        strengthSlider.addEventListener('input', (e) => {
+            strengthValue.textContent = e.target.value;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!base64Image) {
+                showError('Please upload an image first');
+                return;
+            }
+
+            const description = document.getElementById('description').value.trim() || 'professional product photography';
+            const strength = parseFloat(strengthSlider.value);
+            const size = document.getElementById('size').value;
+
+            // Reset UI
+            error.classList.remove('active');
+            result.classList.remove('active');
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/image-to-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        input_image: base64Image,
+                        description,
+                        strength,
+                        size
+                    })
+                });
+
+                const data = await response.json();
+
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    resultImage.src = `data:image/png;base64,${data.image}`;
+                    downloadBtn.href = `data:image/png;base64,${data.image}`;
+                    result.classList.add('active');
+                } else {
+                    showError(data.error || 'Failed to enhance image');
+                }
+            } catch (err) {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+                showError('Network error. Make sure Colab backend is running.');
+            }
+        });
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('active');
+        }
+    </script>
+</body>
+</html>

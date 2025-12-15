@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tool 1: Text to Image</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+        .back-btn:hover { opacity: 1; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+        }
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            display: none;
+            margin-top: 32px;
+            text-align: center;
+        }
+        .result.active {
+            display: block;
+        }
+        .result img {
+            max-width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 16px;
+        }
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-download:hover {
+            background: #059669;
+        }
+        .error {
+            display: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+        .error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Dashboard</a>
+        
+        <div class="card">
+            <h1>📸 Tool 1: Text to Image</h1>
+            <p class="subtitle">Generate professional product images from text descriptions</p>
+
+            <form id="generateForm">
+                <div class="form-group">
+                    <label for="prompt">Product Description</label>
+                    <textarea 
+                        id="prompt" 
+                        name="prompt" 
+                        placeholder="Example: red nike sneaker, luxury perfume bottle, modern smartphone..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="size">Image Size</label>
+                    <select id="size" name="size">
+                        <option value="1024x1024">Square (1024x1024)</option>
+                        <option value="1024x768">Landscape (1024x768)</option>
+                        <option value="768x1024">Portrait (768x1024)</option>
+                        <option value="768x768">Square (768x768)</option>
+                        <option value="512x512">Small (512x512)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Generate Image
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating your product image... (10-20 seconds)</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="result" id="result">
+                <img id="resultImage" alt="Generated product image">
+                <div>
+                    <a id="downloadBtn" class="btn-download" download="product-image.png">
+                        ⬇️ Download Image
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('generateForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const prompt = document.getElementById('prompt').value.trim();
+            const size = document.getElementById('size').value;
+
+            if (!prompt) {
+                showError('Please enter a product description');
+                return;
+            }
+
+            // Reset UI
+            error.classList.remove('active');
+            result.classList.remove('active');
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/text-to-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, size })
+                });
+
+                const data = await response.json();
+
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    resultImage.src = `data:image/png;base64,${data.image}`;
+                    downloadBtn.href = `data:image/png;base64,${data.image}`;
+                    result.classList.add('active');
+                } else {
+                    showError(data.error || 'Failed to generate image');
+                }
+            } catch (err) {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+                showError('Network error. Make sure Colab backend is running.');
+            }
+        });
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('active');
+        }
+    </script>
+</body>
+</html>

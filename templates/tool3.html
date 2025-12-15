@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tool 3: Image to Text</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+        .back-btn:hover { opacity: 1; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px dashed #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .preview {
+            display: none;
+            margin-top: 16px;
+            text-align: center;
+        }
+        .preview.active {
+            display: block;
+        }
+        .preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            display: none;
+            margin-top: 32px;
+        }
+        .result.active {
+            display: block;
+        }
+        .result h3 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+        textarea.description {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            min-height: 150px;
+            line-height: 1.6;
+            color: #374151;
+        }
+        .btn-copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .btn-copy:hover {
+            background: #059669;
+        }
+        .error {
+            display: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+        .error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Dashboard</a>
+        
+        <div class="card">
+            <h1>🧾 Tool 3: Image to Text</h1>
+            <p class="subtitle">Generate product descriptions from your images</p>
+
+            <form id="describeForm">
+                <div class="form-group">
+                    <label for="imageFile">Upload Product Image</label>
+                    <input 
+                        type="file" 
+                        id="imageFile" 
+                        accept="image/*" 
+                        required
+                    >
+                </div>
+
+                <div class="preview" id="preview">
+                    <img id="previewImage" alt="Preview">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Generate Description
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your image... (10-15 seconds)</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="result" id="result">
+                <h3>Product Description</h3>
+                <textarea id="descriptionText" class="description" readonly></textarea>
+                <button id="copyBtn" class="btn-copy">
+                    📋 Copy Description
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageFile = document.getElementById('imageFile');
+        const preview = document.getElementById('preview');
+        const previewImage = document.getElementById('previewImage');
+        const form = document.getElementById('describeForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const descriptionText = document.getElementById('descriptionText');
+        const copyBtn = document.getElementById('copyBtn');
+
+        let base64Image = null;
+
+        // Preview uploaded image
+        imageFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    base64Image = event.target.result;
+                    previewImage.src = base64Image;
+                    preview.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!base64Image) {
+                showError('Please upload an image first');
+                return;
+            }
+
+            // Reset UI
+            error.classList.remove('active');
+            result.classList.remove('active');
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/image-to-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input_image: base64Image })
+                });
+
+                const data = await response.json();
+
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    descriptionText.value = data.description;
+                    result.classList.add('active');
+                } else {
+                    showError(data.error || 'Failed to generate description');
+                }
+            } catch (err) {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+                showError('Network error. Make sure Colab backend is running.');
+            }
+        });
+
+        // Copy to clipboard
+        copyBtn.addEventListener('click', () => {
+            descriptionText.select();
+            document.execCommand('copy');
+            
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = '✓ Copied!';
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+            }, 2000);
+        });
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('active');
+        }
+    </script>
+</body>
+</html>

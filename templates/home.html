@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Product Ad Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 32px 24px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            margin-bottom: 40px;
+        }
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        .logo span {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav a:hover {
+            background: #f3f4f6;
+        }
+        .nav a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .header {
+            margin-bottom: 32px;
+        }
+        .header h2 {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .tool-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        .tool-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .tool1-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .tool2-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .tool3-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .tool-card h3 {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .tool-card p {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .main { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h1>Logoipsum</h1>
+            <span>Build Awesome</span>
+        </div>
+        <nav class="nav">
+            <a href="/" class="active">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/tool1">
+                <span>📸</span>
+                <span>Text → Image</span>
+            </a>
+            <a href="/tool2">
+                <span>✨</span>
+                <span>Image → Image</span>
+            </a>
+            <a href="/tool3">
+                <span>🧾</span>
+                <span>Image → Text</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h2>AI Product Ad Generator</h2>
+            <p>Transform your product ideas into professional marketing assets</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Tool 1 -->
+            <div class="tool-card">
+                <div class="tool-icon tool1-icon">📸</div>
+                <h3>Tool 1: Text to Image</h3>
+                <p>Generate stunning product images from text descriptions. Perfect for creating product mockups and visual concepts.</p>
+                <a href="/tool1" class="btn btn-primary">
+                    <span>Get Started</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <!-- Tool 2 -->
+            <div class="tool-card">
+                <div class="tool-icon tool2-icon">✨</div>
+                <h3>Tool 2: Image Enhancement</h3>
+                <p>Transform your product photos into professional ad-quality images with AI-powered enhancement.</p>
+                <a href="/tool2" class="btn btn-primary">
+                    <span>Get Started</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <!-- Tool 3 -->
+            <div class="tool-card">
+                <div class="tool-icon tool3-icon">🧾</div>
+                <h3>Tool 3: Image Description</h3>
+                <p>Generate compelling product descriptions from images. Great for e-commerce listings and marketing copy.</p>
+                <a href="/tool3" class="btn btn-primary">
+                    <span>Get Started</span>
+                    <span>→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
