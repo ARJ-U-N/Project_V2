@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tool 4 – Best Price Recommender</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0b0b10;
+            color: #f5f5f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 24px;
+            background: #15151d;
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        p.subtitle {
+            margin: 0 0 24px;
+            color: #a0a0b5;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #c7c7d8;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #2a2a3c;
+            background: #14141f;
+            color: #f5f5f7;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .results {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #10101a;
+            border: 1px solid #2a2a3c;
+        }
+
+        .results h2 {
+            margin: 0 0 12px;
+            font-size: 18px;
+        }
+
+        .price-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .price-card {
+            flex: 1 1 240px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #151521;
+            border: 1px solid #2c2c40;
+        }
+
+        .price-label {
+            font-size: 13px;
+            color: #a0a0b5;
+        }
+
+        .price-value {
+            margin-top: 4px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .range {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #a0a0b5;
+        }
+
+        .note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #8e8ea8;
+        }
+
+        .error {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #f97373;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tool 4 – Best Selling Price</h1>
+    <p class="subtitle">
+        Enter your product details and this tool suggests a best selling price in USD,
+        plus an approximate price in INR (USD × 90). Make sure you choose a category
+        that has a trained model (e.g. Audio Devices, Apparel & Accessories, Home Security).
+    </p>
+
+    <form id="price-form">
+        <div class="grid">
+            <div>
+                <label for="product_name">Product name</label>
+                <input id="product_name" name="product_name" placeholder="Wireless Gaming Headset" required>
+            </div>
+
+            <div>
+                <label for="brand">Brand</label>
+                <input id="brand" name="brand" placeholder="GamerPro" required>
+            </div>
+
+            <div>
+                <label for="category">Category</label>
+                <!-- Use exact category names from meta.json -->
+                <select id="category" name="category" required>
+                    <option value="">Select a category</option>
+                    <option value="Audio Devices">Audio Devices</option>
+                    <option value="Apparel & Accessories">Apparel & Accessories</option>
+                    <option value="Home Security">Home Security</option>
+                    <!-- Add more categories here if your meta.json has them -->
+                </select>
+            </div>
+
+            <div>
+                <label for="material">Material</label>
+                <input id="material" name="material" placeholder="Plastic / Metal / Fabric" required>
+            </div>
+
+            <div>
+                <label for="color">Color</label>
+                <input id="color" name="color" placeholder="Black" required>
+            </div>
+
+            <div>
+                <label for="rating">Average rating (1–5)</label>
+                <input id="rating" name="rating" type="number" step="0.1" min="1" max="5" value="4.5" required>
+            </div>
+
+            <div>
+                <label for="num_reviews">Number of reviews</label>
+                <input id="num_reviews" name="num_reviews" type="number" min="0" value="100" required>
+            </div>
+
+            <div>
+                <label for="notes">Extra description (optional)</label>
+                <textarea id="notes" name="notes"
+                          placeholder="Any important features or keywords (premium, waterproof, etc.)"></textarea>
+            </div>
+        </div>
+
+        <button type="submit" id="submit-btn">Get Recommended Price</button>
+        <div id="error" class="error" style="display:none;"></div>
+    </form>
+
+    <div id="results" class="results" style="display:none;">
+        <h2>Recommended price</h2>
+        <div class="price-row">
+            <div class="price-card">
+                <div class="price-label">Suggested price (USD)</div>
+                <div id="usd-price" class="price-value">$0.00</div>
+                <div id="usd-range" class="range"></div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">Approximate price (INR)</div>
+                <div id="inr-price" class="price-value">₹0.00</div>
+                <div id="inr-range" class="range"></div>
+            </div>
+        </div>
+        <div class="note">
+            INR values are a simple estimate using 1 USD ≈ ₹90. Adjust for real-time FX rates and your margins.
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('price-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultsBox = document.getElementById('results');
+    const errBox = document.getElementById('error');
+
+    const usdPriceEl = document.getElementById('usd-price');
+    const usdRangeEl = document.getElementById('usd-range');
+    const inrPriceEl = document.getElementById('inr-price');
+    const inrRangeEl = document.getElementById('inr-range');
+
+    const USD_TO_INR = 90;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errBox.style.display = 'none';
+        resultsBox.style.display = 'none';
+
+        const payload = {
+            product_name: document.getElementById('product_name').value.trim(),
+            brand: document.getElementById('brand').value.trim(),
+            category: document.getElementById('category').value.trim(),
+            material: document.getElementById('material').value.trim(),
+            color: document.getElementById('color').value.trim(),
+            rating: parseFloat(document.getElementById('rating').value),
+            num_reviews: parseInt(document.getElementById('num_reviews').value || '0', 10),
+            notes: document.getElementById('notes').value.trim()
+        };
+
+        if (!payload.product_name || !payload.brand || !payload.category) {
+            errBox.textContent = "Please fill in product name, brand, and category.";
+            errBox.style.display = 'block';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Calculating...";
+
+        try {
+            const res = await fetch("/api/recommend-price", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error("Server error: " + text);
+            }
+
+            const data = await res.json();
+
+            // Expected backend response:
+            // { success: true, price: 75.46, range: [67.92, 83.01] }
+            if (!data.success) {
+                throw new Error(data.error || "Unknown error");
+            }
+
+            const usd = data.price;
+            const [low, high] = data.range || [usd * 0.9, usd * 1.1];
+
+            const inr = usd * USD_TO_INR;
+            const inrLow = low * USD_TO_INR;
+            const inrHigh = high * USD_TO_INR;
+
+            usdPriceEl.textContent = `$${usd.toFixed(2)}`;
+            usdRangeEl.textContent = `Suggested range: $${low.toFixed(2)} – $${high.toFixed(2)}`;
+
+            inrPriceEl.textContent = `₹${inr.toFixed(0)}`;
+            inrRangeEl.textContent = `Approx range: ₹${inrLow.toFixed(0)} – ₹${inrHigh.toFixed(0)}`;
+
+            resultsBox.style.display = 'block';
+        } catch (err) {
+            console.error(err);
+            errBox.textContent = err.message || "Failed to get price recommendation.";
+            errBox.style.display = 'block';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Get Recommended Price";
+        }
+    });
+</script>
+</body>
+</html>

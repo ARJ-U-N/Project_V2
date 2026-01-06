@@ -1,0 +1,65 @@
+{
+  "embed_model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "models_info": {
+    "Apparel & Accessories": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Apparel_and_Accessories.joblib",
+      "n_samples": 4,
+      "mae": 10.944916543639103
+    },
+    "Audio Devices": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Audio_Devices.joblib",
+      "n_samples": 8,
+      "mae": 39.28781806744153
+    },
+    "Car Accessories": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Car_Accessories.joblib",
+      "n_samples": 6,
+      "mae": 11.001004115751392
+    },
+    "Computer Accessories": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Computer_Accessories.joblib",
+      "n_samples": 8,
+      "mae": 20.80404772997528
+    },
+    "Health & Wellness": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Health_and_Wellness.joblib",
+      "n_samples": 4,
+      "mae": 0.32137322491739084
+    },
+    "Home & Office": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Home_and_Office.joblib",
+      "n_samples": 28,
+      "mae": 17.434710054182222
+    },
+    "Home Appliances": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Home_Appliances.joblib",
+      "n_samples": 5,
+      "mae": 115.09321008574227
+    },
+    "Home Automation": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Home_Automation.joblib",
+      "n_samples": 4,
+      "mae": 77.4130612908625
+    },
+    "Home Security": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Home_Security.joblib",
+      "n_samples": 5,
+      "mae": 9.592712665858073
+    },
+    "Kitchen Appliances": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Kitchen_Appliances.joblib",
+      "n_samples": 9,
+      "mae": 39.2473270837932
+    },
+    "Mobile Accessories": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Mobile_Accessories.joblib",
+      "n_samples": 4,
+      "mae": 1.2164759016915347
+    },
+    "Outdoor & Sports": {
+      "model_path": "/content/drive/MyDrive/ai_price_model_v2/models_by_category/rf_Outdoor_and_Sports.joblib",
+      "n_samples": 6,
+      "mae": 354.03355403437047
+    }
+  }
+}
