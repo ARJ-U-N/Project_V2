@@ -1,228 +1,328 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI Product Ad Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Ad Generator - AdGen AI</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "primary-glow": "#60a5fa",
+                        "secondary-glow": "#22d3ee",
+                        "background-dark": "#0f172a",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    backgroundImage: {
+                        'glass-gradient': 'linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
+                        'action-gradient': 'linear-gradient(to right, #3b82f6, #22d3ee)',
+                    }
+                },
+            },
+        }
+    </script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
+            font-family: "Space Grotesk", sans-serif;
+            background-color: #0f172a;
         }
-        .sidebar {
-            width: 280px;
-            background: rgba(255, 255, 255, 0.98);
-            padding: 32px 24px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .logo {
-            margin-bottom: 40px;
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
         }
-        .logo h1 {
-            font-size: 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b; 
+            border-radius: 4px;
         }
-        .logo span {
-            font-size: 13px;
-            color: #6b7280;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155; 
         }
-        .nav {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #374151;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.2s;
+        .ambient-glow-1 {
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
         }
-        .nav a:hover {
-            background: #f3f4f6;
+        .ambient-glow-2 {
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.05) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
         }
-        .nav a.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .icon-glow-container {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.25), inset 0 0 10px rgba(59, 130, 246, 0.1);
         }
-        .main {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
+        .card-hover-bright {
+            transition: all 0.3s ease;
         }
-        .header {
-            margin-bottom: 32px;
-        }
-        .header h2 {
-            font-size: 32px;
-            color: white;
-            margin-bottom: 8px;
-        }
-        .header p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
-        }
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-        }
-        .tool-card {
-            background: white;
-            border-radius: 20px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .tool-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        }
-        .tool-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 16px;
-        }
-        .tool1-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .tool2-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .tool3-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .tool4-icon { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-        .tool-card h3 {
-            font-size: 20px;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        .tool-card p {
-            font-size: 14px;
-            color: #6b7280;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; }
-            .main { padding: 24px; }
+        .card-hover-bright:hover {
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.15);
         }
     </style>
 </head>
-<body>
-    <div class="sidebar">
-        <div class="logo">
-            <h1>Logoipsum</h1>
-            <span>Build Awesome</span>
-        </div>
-        <nav class="nav">
-            <a href="/" class="active">
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-            <a href="/tool1">
-                <span>📸</span>
-                <span>Text → Image</span>
-            </a>
-            <a href="/tool2">
-                <span>✨</span>
-                <span>Image → Image</span>
-            </a>
-            <a href="/tool3">
-                <span>🧾</span>
-                <span>Image → Text</span>
-            </a>
-            <a href="/tool4">
-                <span>💲</span>
-                <span>Best Price (Tool 4)</span>
-            </a>
-        </nav>
-    </div>
+<body class="bg-background-dark text-white h-screen overflow-hidden flex selection:bg-cyan-500 selection:text-white">
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
 
-    <div class="main">
-        <div class="header">
-            <h2>AI Product Ad Generator</h2>
-            <p>Transform your product ideas into professional marketing assets</p>
-        </div>
-
-        <div class="tools-grid">
-            <!-- Tool 1 -->
-            <div class="tool-card">
-                <div class="tool-icon tool1-icon">📸</div>
-                <h3>Tool 1: Text to Image</h3>
-                <p>Generate stunning product images from text descriptions. Perfect for creating product mockups and visual concepts.</p>
-                <a href="/tool1" class="btn btn-primary">
-                    <span>Get Started</span>
-                    <span>→</span>
-                </a>
+    <!-- Sidebar -->
+    <aside class="relative z-20 hidden w-72 flex-col border-r border-white/5 bg-[#0f172a]/90 backdrop-blur-xl lg:flex">
+        <div class="flex h-full flex-col justify-between p-6">
+            <div class="flex flex-col gap-8">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 shadow-lg shadow-blue-500/20">
+                        <span class="material-symbols-outlined text-white" style="font-size: 24px;">auto_awesome</span>
+                    </div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">AdGen AI</h1>
+                </div>
+                <nav class="flex flex-col gap-2">
+                    <a class="group flex items-center gap-3 rounded-lg bg-primary/10 px-4 py-3 text-sm font-medium text-white ring-1 ring-primary/20 transition-all" href="/">
+                        <span class="material-symbols-outlined text-primary group-hover:text-white transition-colors" style="font-size: 22px;">dashboard</span>
+                        Dashboard
+                    </a>
+                    <a class="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-all" href="/tool1">
+                        <span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-size: 22px;">image</span>
+                        Text → Image
+                    </a>
+                    <a class="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-all" href="/tool2">
+                        <span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-size: 22px;">photo_camera</span>
+                        Image → Image
+                    </a>
+                    <a class="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-all" href="/tool3">
+                        <span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-size: 22px;">document_scanner</span>
+                        Image → Text
+                    </a>
+                    <a class="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-all" href="/tool4">
+                        <span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-size: 22px;">price_check</span>
+                        Best Price
+                    </a>
+                </nav>
             </div>
-
-            <!-- Tool 2 -->
-            <div class="tool-card">
-                <div class="tool-icon tool2-icon">✨</div>
-                <h3>Tool 2: Image Enhancement</h3>
-                <p>Transform your product photos into professional ad-quality images with AI-powered enhancement.</p>
-                <a href="/tool2" class="btn btn-primary">
-                    <span>Get Started</span>
-                    <span>→</span>
-                </a>
-            </div>
-
-            <!-- Tool 3 -->
-            <div class="tool-card">
-                <div class="tool-icon tool3-icon">🧾</div>
-                <h3>Tool 3: Image Description</h3>
-                <p>Generate compelling product descriptions from images. Great for e-commerce listings and marketing copy.</p>
-                <a href="/tool3" class="btn btn-primary">
-                    <span>Get Started</span>
-                    <span>→</span>
-                </a>
-            </div>
-
-            <!-- Tool 4 -->
-            <div class="tool-card">
-                <div class="tool-icon tool4-icon">💲</div>
-                <h3>Tool 4: Best Selling Price</h3>
-                <p>Predict a best selling price for your product in USD and see the approximate Indian price (USD × 90) for quick market comparison.</p>
-                <a href="/tool4" class="btn btn-primary">
-                    <span>Get Started</span>
-                    <span>→</span>
-                </a>
+            <div class="flex items-center gap-3 rounded-xl border border-white/5 bg-white/5 p-3 hover:bg-white/10 transition-colors cursor-pointer">
+                <div class="h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAQfzePz_mTRRewLX6nxUQ9oFPGPOKuNcoj0AaEvhCqm6kaXGlg2a8DKG9G4FpzILXdPVR1_FVR0YsUfuHIW0jwJz_TBJ8WBmGVKUJJAWHwGT1WMXc9750aq4lmN3Bhc6RAk1K55zGRGMpPftka0NLIEgk28KNrue436ubhbhOUXeeJ2u_8TBDWLv4AZBYy3daEamxok--R1cwejUYT1TGbSXitDFX_GELFPNcXdAZH81epRUeksRRJE5QpI79872KlUVW3FRoX1AU");'></div>
+                <div class="flex flex-col">
+                    <p class="text-sm font-bold text-white">Alex Morgan</p>
+                    <p class="text-xs text-gray-400">Pro Plan</p>
+                </div>
+                <span class="material-symbols-outlined ml-auto text-gray-500" style="font-size: 20px;">expand_more</span>
             </div>
         </div>
-    </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex flex-1 flex-col overflow-y-auto">
+        <!-- Mobile Header -->
+        <header class="flex items-center justify-between border-b border-white/10 bg-[#0f172a]/90 p-4 backdrop-blur-xl lg:hidden">
+            <div class="flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-400">
+                    <span class="material-symbols-outlined text-white" style="font-size: 20px;">auto_awesome</span>
+                </div>
+                <span class="font-bold text-white">AdGen AI</span>
+            </div>
+            <button class="text-white">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </header>
+
+        <div class="container mx-auto max-w-7xl px-6 py-8 md:px-12 md:py-12">
+            <!-- Header Section -->
+            <div class="mb-10 flex flex-wrap items-end justify-between gap-6">
+                <div class="max-w-3xl">
+                    <h2 class="mb-2 text-4xl font-black leading-tight tracking-tight text-white md:text-5xl lg:text-6xl">
+                        Welcome back.<br/>
+                        <span class="bg-gradient-to-r from-blue-400 via-cyan-400 to-cyan-200 bg-clip-text text-transparent">Ready to generate?</span>
+                    </h2>
+                    <p class="text-lg text-gray-400 font-light mt-4">Select a tool below to launch your next campaign.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20">
+                        <span class="material-symbols-outlined text-cyan-400" style="font-size: 18px;">calendar_today</span>
+                        <span>Oct 24, 2023</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="glass-panel relative overflow-hidden rounded-2xl p-5 transition-all hover:-translate-y-1 group">
+                    <div class="absolute right-0 top-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-blue-600/10 blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                    <div class="relative z-10 flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-gray-400">Credits Remaining</p>
+                        <span class="material-symbols-outlined text-blue-400" style="font-size: 20px;">bolt</span>
+                    </div>
+                    <p class="relative z-10 text-3xl font-bold text-white">850</p>
+                    <div class="mt-2 h-1 w-full rounded-full bg-white/10">
+                        <div class="h-1 w-[85%] rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+                    </div>
+                </div>
+                <div class="glass-panel relative overflow-hidden rounded-2xl p-5 transition-all hover:-translate-y-1 group">
+                    <div class="absolute right-0 top-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-cyan-600/10 blur-2xl group-hover:bg-cyan-500/20 transition-all"></div>
+                    <div class="relative z-10 flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-gray-400">Generations (7d)</p>
+                        <span class="material-symbols-outlined text-cyan-400" style="font-size: 20px;">trending_up</span>
+                    </div>
+                    <p class="relative z-10 text-3xl font-bold text-white">42</p>
+                    <p class="text-xs text-cyan-400 flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined text-[14px]">arrow_upward</span> 12% vs last week
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tools Section Header -->
+            <div class="mb-6 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white">AI Creation Tools</h3>
+                <a class="text-sm font-medium text-blue-400 hover:text-white transition-colors" href="#">View All Tools</a>
+            </div>
+
+            <!-- Tools Grid -->
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                <!-- Tool 1: Text to Image -->
+                <div class="group relative flex flex-col rounded-2xl border border-white/10 bg-[#1e293b]/40 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/50 hover:shadow-[0_0_40px_-10px_rgba(34,211,238,0.15)]">
+                    <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 icon-glow-container transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] group-hover:text-cyan-300 group-hover:border-cyan-400/50">
+                        <span class="material-symbols-outlined" style="font-size: 32px;">image</span>
+                    </div>
+                    <div class="mb-8 flex-1">
+                        <h4 class="mb-2 text-lg font-bold text-white group-hover:text-cyan-200 transition-colors">Tool 1: Text to Image</h4>
+                        <p class="text-sm leading-relaxed text-gray-400 line-clamp-2">Generate stunning product images from text descriptions. Perfect for creating product mockups and visual concepts.</p>
+                    </div>
+                    <a href="/tool1" class="group/btn relative mt-auto flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-blue-500/30 bg-transparent py-3 text-sm font-semibold text-blue-300 transition-all duration-300 hover:border-transparent hover:text-white hover:shadow-lg hover:shadow-cyan-500/30">
+                        <div class="absolute inset-0 translate-y-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-transform duration-300 group-hover/btn:translate-y-0"></div>
+                        <span class="relative z-10">Launch Tool</span>
+                        <span class="material-symbols-outlined relative z-10 transition-transform group-hover/btn:translate-x-1" style="font-size: 18px;">arrow_forward</span>
+                    </a>
+                </div>
+
+                <!-- Tool 2: Image Enhancement -->
+                <div class="group relative flex flex-col rounded-2xl border border-white/10 bg-[#1e293b]/40 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/50 hover:shadow-[0_0_40px_-10px_rgba(34,211,238,0.15)]">
+                    <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 icon-glow-container transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] group-hover:text-cyan-300 group-hover:border-cyan-400/50">
+                        <span class="material-symbols-outlined" style="font-size: 32px;">photo_camera</span>
+                    </div>
+                    <div class="mb-8 flex-1">
+                        <h4 class="mb-2 text-lg font-bold text-white group-hover:text-cyan-200 transition-colors">Tool 2: Image Enhancement</h4>
+                        <p class="text-sm leading-relaxed text-gray-400 line-clamp-2">Transform your product photos into professional ad-quality images with AI-powered enhancement.</p>
+                    </div>
+                    <a href="/tool2" class="group/btn relative mt-auto flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-blue-500/30 bg-transparent py-3 text-sm font-semibold text-blue-300 transition-all duration-300 hover:border-transparent hover:text-white hover:shadow-lg hover:shadow-cyan-500/30">
+                        <div class="absolute inset-0 translate-y-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-transform duration-300 group-hover/btn:translate-y-0"></div>
+                        <span class="relative z-10">Launch Tool</span>
+                        <span class="material-symbols-outlined relative z-10 transition-transform group-hover/btn:translate-x-1" style="font-size: 18px;">arrow_forward</span>
+                    </a>
+                </div>
+
+                <!-- Tool 3: Image Description -->
+                <div class="group relative flex flex-col rounded-2xl border border-white/10 bg-[#1e293b]/40 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/50 hover:shadow-[0_0_40px_-10px_rgba(34,211,238,0.15)]">
+                    <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 icon-glow-container transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] group-hover:text-cyan-300 group-hover:border-cyan-400/50">
+                        <span class="material-symbols-outlined" style="font-size: 32px;">document_scanner</span>
+                    </div>
+                    <div class="mb-8 flex-1">
+                        <h4 class="mb-2 text-lg font-bold text-white group-hover:text-cyan-200 transition-colors">Tool 3: Image Description</h4>
+                        <p class="text-sm leading-relaxed text-gray-400 line-clamp-2">Generate compelling product descriptions from images. Great for e-commerce listings and marketing copy.</p>
+                    </div>
+                    <a href="/tool3" class="group/btn relative mt-auto flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-blue-500/30 bg-transparent py-3 text-sm font-semibold text-blue-300 transition-all duration-300 hover:border-transparent hover:text-white hover:shadow-lg hover:shadow-cyan-500/30">
+                        <div class="absolute inset-0 translate-y-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-transform duration-300 group-hover/btn:translate-y-0"></div>
+                        <span class="relative z-10">Launch Tool</span>
+                        <span class="material-symbols-outlined relative z-10 transition-transform group-hover/btn:translate-x-1" style="font-size: 18px;">arrow_forward</span>
+                    </a>
+                </div>
+
+                <!-- Tool 4: Best Selling Price -->
+                <div class="group relative flex flex-col rounded-2xl border border-white/10 bg-[#1e293b]/40 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/50 hover:shadow-[0_0_40px_-10px_rgba(34,211,238,0.15)]">
+                    <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 icon-glow-container transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] group-hover:text-cyan-300 group-hover:border-cyan-400/50">
+                        <span class="material-symbols-outlined" style="font-size: 32px;">price_check</span>
+                    </div>
+                    <div class="mb-8 flex-1">
+                        <h4 class="mb-2 text-lg font-bold text-white group-hover:text-cyan-200 transition-colors">Tool 4: Best Selling Price</h4>
+                        <p class="text-sm leading-relaxed text-gray-400 line-clamp-2">Predict a best selling price for your product in USD and see the approximate Indian price (USD × 90) for quick market comparison.</p>
+                    </div>
+                    <a href="/tool4" class="group/btn relative mt-auto flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-blue-500/30 bg-transparent py-3 text-sm font-semibold text-blue-300 transition-all duration-300 hover:border-transparent hover:text-white hover:shadow-lg hover:shadow-cyan-500/30">
+                        <div class="absolute inset-0 translate-y-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-transform duration-300 group-hover/btn:translate-y-0"></div>
+                        <span class="relative z-10">Launch Tool</span>
+                        <span class="material-symbols-outlined relative z-10 transition-transform group-hover/btn:translate-x-1" style="font-size: 18px;">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Generations Section -->
+            <div class="mt-12">
+                <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white">Recent Generations</h3>
+                </div>
+                <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] divide-y divide-white/10 md:divide-x md:divide-y-0">
+                        <div class="group relative flex flex-col gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer">
+                            <div class="aspect-video w-full overflow-hidden rounded-lg bg-gray-800 relative">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC4ZXxF0rBxTkjQdc3VOC_Tdqd_S4eSvWFpHvqCw7IQxljxVZ1SfaWnDqmlKdYoatyHI3sW0LCP-g9_24cEsqh4Uy7gFnhQbP5d-ypOar5sf0ic9oe_SwVp7zxGnvPCM1Saqt8Bx0wc-f8xtY8DJGJzJuLXKXPK1eLmLQiiwz6ueBP4LWvidMaK4rzL9YwH_1EmN__GTSYHhSMrsq35teHc49pHxHttcqSpShi_MHZNdGsFnNuYbI8PKECQz47ghF3atZCHjTR9w1U");'></div>
+                                <div class="absolute top-2 right-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm border border-white/10">Image</div>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-medium text-white truncate group-hover:text-cyan-300 transition-colors">Neon Sneakers Campaign</h5>
+                                <p class="text-xs text-gray-400">2 mins ago</p>
+                            </div>
+                        </div>
+                        <div class="group relative flex flex-col gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer">
+                            <div class="aspect-video w-full overflow-hidden rounded-lg bg-gray-800 relative">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDSpFXyjSNWFvvgzaFts-BVug2fRe9byDYA9BhI8S1E8W4RO-Y-EQqxPbgVMN09JRG1xC5ALSkIixKrfPbvIo5YRpPTP_ep1YeIVM1zKareOrreh5_y92PH1gpF-uP3ihbgDStVzpJolXoUKE-I83hO_YJMFBRgMo_0gajJJbNcpazDVtF3sv3z4y-IyLjpZzWcbN9VjTt8ql0-cpX7SwMD9suW5UvWcHAbOxIqkYMmvbYjW79cDV_MFUBnLdUED0rtNWXLn0YN_fU");'></div>
+                                <div class="absolute top-2 right-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm border border-white/10">Photo</div>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-medium text-white truncate group-hover:text-cyan-300 transition-colors">Skincare Product Shot</h5>
+                                <p class="text-xs text-gray-400">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="group relative flex flex-col gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer">
+                            <div class="aspect-video w-full overflow-hidden rounded-lg bg-gray-800 relative">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB2Bk-w4LLHj15u8u78rUbZ7qlRZGuE6sCNRUi4rTbaIxVg723NnBbm-5CpEs9sJA9EfgbxnkRCEq_G_nTH5HVsIIjEFoQentuUrD9Gn2tSC5zJaSrkgNekeTkYb5WIp9wE1JSOQ9AVODqdYv6QeHB7bKxn7fzQisuTQxEZAFkRoeIzOJFGldvPKtv1PNuFjk8uP762LkPQvkALH7QD2yf78BAyBgYFXtPPE0-K-oqrg83ZIf1by8LnNMI-k_5xun1MEOc4K8AWGRI");'></div>
+                                <div class="absolute top-2 right-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm border border-white/10">Video</div>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-medium text-white truncate group-hover:text-cyan-300 transition-colors">Tech Event Promo</h5>
+                                <p class="text-xs text-gray-400">5 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="group relative flex flex-col gap-3 p-4 hover:bg-white/5 transition-colors cursor-pointer">
+                            <div class="aspect-video w-full overflow-hidden rounded-lg bg-gray-800 relative">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDmCj5ccuqPXGWIJagcQZ61HK1jp5khoiumjp6Bkc8DszKVfYdLyZuJCQHz4uMEYrh-YSXBpqrKH0hIfapOwfAnes2KUd4zoriUrVIfjCD3V50ug03qYoroyw5N9kPPJ1yA56WbN9mf2KtoVCovLRJs9TlBzFqCDchzOT9uefBZuHWIWNLJH53qW64Q1_9L4cgSY28szqbdyp5Rh-Qmn4Bna4wQ6IjQr6Myix70Z8d0tC9zmCMFTotIuYg04Fxn_8G71JFxTqn3fEE");'></div>
+                                <div class="absolute top-2 right-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm border border-white/10">Copy</div>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-medium text-white truncate group-hover:text-cyan-300 transition-colors">Coffee Brand Story</h5>
+                                <p class="text-xs text-gray-400">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
 </body>
 </html>

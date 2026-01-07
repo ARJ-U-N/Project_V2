@@ -1,217 +1,312 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tool 1: Text to Image</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 1: Text to Image - AI Ad Generator</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "primary-glow": "#60a5fa",
+                        "cyan-bright": "#22d3ee",
+                        "background-dark": "#020617",
+                        "surface-dark": "#0f172a",
+                        "surface-light": "#1e293b",
+                        "border-dark": "#1e293b",
+                        "border-highlight": "#334155",
+                        "text-muted": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        ::-webkit-scrollbar-track {
+            background: #020617; 
         }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            margin-bottom: 24px;
-            opacity: 0.9;
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b; 
+            border-radius: 4px;
         }
-        .back-btn:hover { opacity: 1; }
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-        }
-        h1 {
-            font-size: 28px;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            color: #6b7280;
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-        .form-group {
-            margin-bottom: 24px;
-        }
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-        textarea {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 120px;
-        }
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: inherit;
-            background: white;
-        }
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .btn-primary:hover:not(:disabled) {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-        }
-        .loading.active {
-            display: block;
-        }
-        .spinner {
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .result {
-            display: none;
-            margin-top: 32px;
-            text-align: center;
-        }
-        .result.active {
-            display: block;
-        }
-        .result img {
-            max-width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            margin-bottom: 16px;
-        }
-        .btn-download {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: #10b981;
-            color: white;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .btn-download:hover {
-            background: #059669;
-        }
-        .error {
-            display: none;
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-        .error.active {
-            display: block;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6; 
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <a href="/" class="back-btn">← Back to Dashboard</a>
-        
-        <div class="card">
-            <h1>📸 Tool 1: Text to Image</h1>
-            <p class="subtitle">Generate professional product images from text descriptions</p>
-
-            <form id="generateForm">
-                <div class="form-group">
-                    <label for="prompt">Product Description</label>
-                    <textarea 
-                        id="prompt" 
-                        name="prompt" 
-                        placeholder="Example: red nike sneaker, luxury perfume bottle, modern smartphone..."
-                        required
-                    ></textarea>
+<body class="bg-background-dark text-white font-display overflow-hidden selection:bg-primary/30 selection:text-white">
+    <div class="flex h-screen w-full overflow-hidden bg-background-dark">
+        <!-- Sidebar -->
+        <div class="hidden w-72 flex-col justify-between border-r border-border-dark bg-[#020617] p-5 lg:flex relative z-20">
+            <div class="flex flex-col gap-8">
+                <div class="flex items-center gap-3 px-2">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-primary/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]" data-alt="Abstract blue geometric logo representing AI technology" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBx3I0yHbYpQ4_Tt_nMlTtlvcms6XwySzi-edz8Gf_pdNhE-xeij_-Q8LqnKdm8XoopjnO8oK9ToUiHk1VFIDhP0WNvshhMLyeTHUaQrmMFCzev4nKOU0t6AoT_M5iaVSEWHk5XJLe-qVH6yU_YjZXWsS5DOa_0P0RXoBqroNkh1NtFgxrujgLoRPlYYeVIEgL8H1KsrLtPVGyW11xrKBC-0NQiNUxP7aPNuzkP8oTaO4efPLylvsEq9SU4X7wDcvTyZrLRoIaiv_I");'>
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 class="text-white text-lg font-bold leading-none tracking-tight">AI Ad Generator</h1>
+                        <p class="text-text-muted text-xs font-normal mt-1">Creative Suite</p>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="size">Image Size</label>
-                    <select id="size" name="size">
-                        <option value="1024x1024">Square (1024x1024)</option>
-                        <option value="1024x768">Landscape (1024x768)</option>
-                        <option value="768x1024">Portrait (768x1024)</option>
-                        <option value="768x768">Square (768x768)</option>
-                        <option value="512x512">Small (512x512)</option>
-                    </select>
+                <div class="flex flex-col gap-2">
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-surface-dark group transition-colors" href="/">
+                        <span class="material-symbols-outlined text-text-muted group-hover:text-white transition-colors">dashboard</span>
+                        <p class="text-text-muted group-hover:text-white text-sm font-medium transition-colors">Dashboard</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 border border-primary/20 shadow-[inset_0_0_10px_rgba(59,130,246,0.1)]" href="/tool1">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">image</span>
+                        <p class="text-white text-sm font-bold">Text → Image</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-surface-dark group transition-colors" href="/tool2">
+                        <span class="material-symbols-outlined text-text-muted group-hover:text-white transition-colors">photo_camera</span>
+                        <p class="text-text-muted group-hover:text-white text-sm font-medium transition-colors">Image → Image</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-surface-dark group transition-colors" href="/tool3">
+                        <span class="material-symbols-outlined text-text-muted group-hover:text-white transition-colors">document_scanner</span>
+                        <p class="text-text-muted group-hover:text-white text-sm font-medium transition-colors">Image → Text</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-surface-dark group transition-colors" href="/tool4">
+                        <span class="material-symbols-outlined text-text-muted group-hover:text-white transition-colors">price_check</span>
+                        <p class="text-text-muted group-hover:text-white text-sm font-medium transition-colors">Best Price</p>
+                    </a>
                 </div>
+            </div>
+            <div class="flex items-center gap-3 px-2 py-3 border-t border-border-dark mt-auto">
+                <div class="size-8 rounded-full bg-gradient-to-tr from-primary to-cyan-bright ring-1 ring-white/10"></div>
+                <div class="flex flex-col">
+                    <p class="text-white text-sm font-medium">Alex Morgan</p>
+                    <p class="text-text-muted text-xs">Pro Plan</p>
+                </div>
+            </div>
+        </div>
 
-                <button type="submit" class="btn btn-primary" id="submitBtn">
-                    Generate Image
-                </button>
-            </form>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Generating your product image... (10-20 seconds)</p>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col h-full overflow-y-auto relative z-0 scroll-smooth">
+            <!-- Ambient Glows -->
+            <div class="fixed inset-0 pointer-events-none z-0">
+                <div class="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-blue-900/20 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div class="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-cyan-900/10 rounded-full blur-[100px] mix-blend-screen"></div>
+                <div class="absolute top-[20%] right-[10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[80px]"></div>
             </div>
 
-            <div class="error" id="error"></div>
+            <!-- Mobile Header -->
+            <div class="lg:hidden flex items-center justify-between p-4 border-b border-border-dark bg-background-dark sticky top-0 z-10">
+                <div class="flex items-center gap-2">
+                    <div class="size-8 rounded-full bg-primary shadow-lg shadow-primary/40"></div>
+                    <span class="font-bold">AI Ad Generator</span>
+                </div>
+                <span class="material-symbols-outlined">menu</span>
+            </div>
 
-            <div class="result" id="result">
-                <img id="resultImage" alt="Generated product image">
-                <div>
-                    <a id="downloadBtn" class="btn-download" download="product-image.png">
-                        ⬇️ Download Image
+            <div class="flex-1 px-6 py-8 md:px-12 lg:px-16 max-w-[1400px] mx-auto w-full relative z-10">
+                <!-- Breadcrumb -->
+                <nav class="flex flex-wrap gap-2 pb-6 items-center">
+                    <a class="text-text-muted hover:text-primary transition-colors text-sm font-medium leading-normal flex items-center gap-1" href="/">
+                        <span class="material-symbols-outlined text-[18px]">home</span>
+                        Home
                     </a>
+                    <span class="text-text-muted text-sm font-medium leading-normal">/</span>
+                    <span class="text-white text-sm font-medium leading-normal drop-shadow-md">Text to Image</span>
+                </nav>
+
+                <!-- Info Banner -->
+                <div class="mb-8 w-full">
+                    <div class="relative overflow-hidden rounded-xl border border-primary/20 bg-surface-dark/40 backdrop-blur-sm p-[1px]">
+                        <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent pointer-events-none"></div>
+                        <div class="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-5 rounded-[11px] bg-background-dark/40">
+                            <div class="flex items-start gap-4">
+                                <div class="p-2.5 bg-gradient-to-br from-primary to-cyan-bright rounded-lg text-white shadow-lg shadow-primary/20 hidden sm:block">
+                                    <span class="material-symbols-outlined">auto_awesome</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <h3 class="text-white text-lg font-bold leading-tight">Create stunning product ads in seconds</h3>
+                                    <p class="text-text-muted text-sm font-normal leading-normal max-w-2xl">Describe your vision with detail, and let our AI handle the rest. Perfect for social media, banners, and marketing materials.</p>
+                                </div>
+                            </div>
+                            <button class="group flex items-center justify-center gap-2 rounded-lg h-9 px-4 hover:bg-white/5 text-text-muted hover:text-white text-sm font-medium transition-colors border border-transparent hover:border-white/10">
+                                <span>Dismiss</span>
+                                <span class="material-symbols-outlined text-[18px]">close</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+                    <!-- Left Column: Form -->
+                    <div class="lg:col-span-4 flex flex-col gap-6">
+                        <form id="generateForm" class="flex flex-col gap-6">
+                            <!-- Prompt Field -->
+                            <div class="flex flex-col gap-3 group">
+                                <label class="flex items-center justify-between text-white text-sm font-bold pl-1">
+                                    <span class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary text-[18px]">edit_note</span>
+                                        Prompt
+                                    </span>
+                                    <span class="text-text-muted text-xs font-normal" id="charCount">0/500</span>
+                                </label>
+                                <div class="relative">
+                                    <textarea 
+                                        id="prompt"
+                                        class="w-full resize-none rounded-xl bg-surface-dark border border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-white placeholder:text-text-muted p-4 min-h-[180px] text-base leading-relaxed transition-all shadow-inner hover:border-border-highlight outline-none" 
+                                        placeholder="A futuristic perfume bottle on a neon podium, cyberpunk aesthetic, dramatic lighting, 8k resolution..."
+                                        maxlength="500"
+                                        required
+                                    ></textarea>
+                                    <div class="absolute bottom-3 right-3 flex gap-2">
+                                        <button type="button" class="text-xs flex items-center gap-1 bg-background-dark/80 backdrop-blur border border-white/10 text-text-muted hover:text-white px-3 py-1.5 rounded-full transition-colors hover:border-primary/50">
+                                            <span class="material-symbols-outlined text-[14px]">shuffle</span> Surprise Me
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Image Size Field -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-white text-sm font-bold pl-1">Image Size</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
+                                        <span class="material-symbols-outlined">aspect_ratio</span>
+                                    </div>
+                                    <select id="size" class="w-full appearance-none rounded-xl bg-surface-dark border border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-white placeholder:text-text-muted py-4 pl-12 pr-10 text-base leading-relaxed transition-all shadow-inner outline-none cursor-pointer hover:border-border-highlight">
+                                        <option value="1024x1024">1024 x 1024 (1:1 Square)</option>
+                                        <option value="1024x768">1024 x 768 (Landscape)</option>
+                                        <option value="768x1024">768 x 1024 (Portrait)</option>
+                                        <option value="768x768">768 x 768 (Square)</option>
+                                        <option value="512x512">512 x 512 (Small)</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-text-muted">
+                                        <span class="material-symbols-outlined">expand_more</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Style Selection -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-white text-sm font-bold pl-1">Style</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <button type="button" class="px-4 py-2 rounded-lg border border-primary bg-primary/10 text-primary text-sm font-medium transition-colors shadow-[0_0_10px_rgba(59,130,246,0.2)]">Photorealistic</button>
+                                    <button type="button" class="px-4 py-2 rounded-lg border border-border-dark bg-surface-dark text-text-muted hover:text-white hover:border-text-muted hover:bg-surface-light text-sm font-medium transition-all">Cyberpunk</button>
+                                    <button type="button" class="px-4 py-2 rounded-lg border border-border-dark bg-surface-dark text-text-muted hover:text-white hover:border-text-muted hover:bg-surface-light text-sm font-medium transition-all">3D Render</button>
+                                    <button type="button" class="px-4 py-2 rounded-lg border border-border-dark bg-surface-dark text-text-muted hover:text-white hover:border-text-muted hover:bg-surface-light text-sm font-medium transition-all">Studio</button>
+                                    <button type="button" class="px-4 py-2 rounded-lg border border-border-dark bg-surface-dark text-text-muted hover:text-white hover:border-text-muted hover:bg-surface-light text-sm font-medium transition-all">Neon</button>
+                                </div>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <div class="mt-auto pt-6">
+                                <button type="submit" id="submitBtn" class="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-cyan-400 p-[1px] shadow-[0_0_25px_rgba(37,99,235,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.5)] transition-all duration-300 group">
+                                    <div class="relative flex items-center justify-center gap-2 rounded-xl bg-transparent py-4 text-white font-bold text-lg z-10">
+                                        <span class="material-symbols-outlined">auto_awesome</span>
+                                        <span id="buttonText">Generate Image</span>
+                                    </div>
+                                    <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg] z-0"></div>
+                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-400 opacity-100 group-hover:opacity-90 transition-opacity"></div>
+                                </button>
+                                <div class="flex items-center justify-between mt-3 px-1">
+                                    <p class="text-xs text-text-muted">Cost: <span class="text-white font-medium">1 Credit</span></p>
+                                    <p class="text-xs text-primary-glow font-medium">124 Credits remaining</p>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Loading State -->
+                        <div id="loading" class="hidden text-center py-8">
+                            <div class="inline-block w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+                            <p class="text-text-muted">Generating your product image... (10-20 seconds)</p>
+                        </div>
+
+                        <!-- Error Display -->
+                        <div id="error" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm"></div>
+                    </div>
+
+                    <!-- Right Column: Result Display -->
+                    <div class="lg:col-span-8 flex flex-col h-full min-h-[600px]">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white text-lg font-bold flex items-center gap-2">
+                                <span class="material-symbols-outlined text-cyan-bright">image</span>
+                                Result
+                            </h3>
+                            <div class="flex gap-2">
+                                <button class="p-2 rounded-lg bg-surface-dark text-text-muted hover:text-white hover:bg-surface-light transition-colors border border-border-dark" title="Toggle Grid View">
+                                    <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                                </button>
+                                <button class="p-2 rounded-lg bg-surface-dark text-text-muted hover:text-white hover:bg-surface-light transition-colors border border-border-dark" title="Toggle Fullscreen">
+                                    <span class="material-symbols-outlined text-[20px]">fullscreen</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Result Container -->
+                        <div id="resultContainer" class="relative flex-1 rounded-2xl border border-white/10 bg-surface-dark/50 overflow-hidden group shadow-2xl">
+                            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#3b82f6 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+                            <!-- Placeholder/Result Image -->
+                            <div class="absolute inset-0 flex items-center justify-center" id="imagePlaceholder">
+                                <div class="text-center text-text-muted">
+                                    <span class="material-symbols-outlined text-6xl mb-4 opacity-30">image</span>
+                                    <p>Your generated image will appear here</p>
+                                </div>
+                            </div>
+
+                            <img id="resultImage" class="hidden w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" alt="Generated product image"/>
+
+                            <!-- Generated Badge -->
+                            <div id="generatedBadge" class="hidden absolute top-4 right-4">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-black/40 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white border border-white/10 shadow-lg">
+                                    <span class="relative flex h-2 w-2">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                    </span>
+                                    Generated just now
+                                </span>
+                            </div>
+
+                            <!-- Action Buttons Overlay -->
+                            <div id="actionButtons" class="hidden absolute inset-0 bg-gradient-to-t from-background-dark/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
+                                <div class="flex items-center gap-3 p-2 rounded-2xl bg-surface-dark/80 backdrop-blur-xl border border-white/10 shadow-2xl translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                    <button id="downloadBtn" class="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 text-white min-w-[72px] transition-colors group/btn">
+                                        <span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">download</span>
+                                        <span class="text-[10px] font-medium tracking-wide">Download</span>
+                                    </button>
+                                    <div class="w-px h-8 bg-white/10"></div>
+                                    <button class="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 text-white min-w-[72px] transition-colors group/btn">
+                                        <span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">hd</span>
+                                        <span class="text-[10px] font-medium tracking-wide">Upscale</span>
+                                    </button>
+                                    <button class="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 text-white min-w-[72px] transition-colors group/btn">
+                                        <span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">tune</span>
+                                        <span class="text-[10px] font-medium tracking-wide">Edit</span>
+                                    </button>
+                                    <button class="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/10 text-white min-w-[72px] transition-colors group/btn">
+                                        <span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">share</span>
+                                        <span class="text-[10px] font-medium tracking-wide">Share</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnail Gallery -->
+                        <div id="thumbnailGallery" class="hidden mt-6 flex gap-4 overflow-x-auto pb-4">
+                            <div class="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-primary overflow-hidden relative cursor-pointer shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:scale-105 transition-transform">
+                                <img id="thumbnail1" class="w-full h-full object-cover" alt="Thumbnail"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -220,12 +315,26 @@
     <script>
         const form = document.getElementById('generateForm');
         const submitBtn = document.getElementById('submitBtn');
+        const buttonText = document.getElementById('buttonText');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
-        const result = document.getElementById('result');
+        const promptField = document.getElementById('prompt');
+        const charCount = document.getElementById('charCount');
         const resultImage = document.getElementById('resultImage');
+        const imagePlaceholder = document.getElementById('imagePlaceholder');
+        const generatedBadge = document.getElementById('generatedBadge');
+        const actionButtons = document.getElementById('actionButtons');
         const downloadBtn = document.getElementById('downloadBtn');
+        const thumbnailGallery = document.getElementById('thumbnailGallery');
+        const thumbnail1 = document.getElementById('thumbnail1');
 
+        // Character counter
+        promptField.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            charCount.textContent = `${length}/500`;
+        });
+
+        // Form submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -238,10 +347,11 @@
             }
 
             // Reset UI
-            error.classList.remove('active');
-            result.classList.remove('active');
-            loading.classList.add('active');
+            error.classList.add('hidden');
+            form.classList.add('hidden');
+            loading.classList.remove('hidden');
             submitBtn.disabled = true;
+            buttonText.textContent = 'Generating...';
 
             try {
                 const response = await fetch('/api/text-to-image', {
@@ -252,26 +362,50 @@
 
                 const data = await response.json();
 
-                loading.classList.remove('active');
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
                 submitBtn.disabled = false;
+                buttonText.textContent = 'Generate Image';
 
                 if (data.success) {
-                    resultImage.src = `data:image/png;base64,${data.image}`;
-                    downloadBtn.href = `data:image/png;base64,${data.image}`;
-                    result.classList.add('active');
+                    // Show the generated image
+                    const imageData = `data:image/png;base64,${data.image}`;
+                    resultImage.src = imageData;
+                    resultImage.classList.remove('hidden');
+                    imagePlaceholder.classList.add('hidden');
+                    generatedBadge.classList.remove('hidden');
+                    actionButtons.classList.remove('hidden');
+
+                    // Setup download button
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = imageData;
+                        link.download = 'product-image.png';
+                        link.click();
+                    };
+
+                    // Show thumbnail
+                    thumbnail1.src = imageData;
+                    thumbnailGallery.classList.remove('hidden');
+
                 } else {
                     showError(data.error || 'Failed to generate image');
                 }
             } catch (err) {
-                loading.classList.remove('active');
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
                 submitBtn.disabled = false;
+                buttonText.textContent = 'Generate Image';
                 showError('Network error. Make sure Colab backend is running.');
             }
         });
 
         function showError(message) {
             error.textContent = message;
-            error.classList.add('active');
+            error.classList.remove('hidden');
+            setTimeout(() => {
+                error.classList.add('hidden');
+            }, 5000);
         }
     </script>
 </body>

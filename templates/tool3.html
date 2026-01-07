@@ -1,218 +1,243 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tool 3: Image to Text</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 3: Image to Text - AI Ad Generator</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "primary-accent": "#06b6d4",
+                        "background-light": "#f1f5f9",
+                        "background-dark": "#020617",
+                        "surface-dark": "#0f172a",
+                        "surface-border": "#1e293b",
+                        "text-secondary": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        ::-webkit-scrollbar-track {
+            background: #020617; 
         }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            margin-bottom: 24px;
-            opacity: 0.9;
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b; 
+            border-radius: 4px;
         }
-        .back-btn:hover { opacity: 1; }
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155; 
         }
-        h1 {
-            font-size: 28px;
-            color: #1f2937;
-            margin-bottom: 8px;
+        .shimmer-hover:hover {
+            position: relative;
+            overflow: hidden;
         }
-        .subtitle {
-            color: #6b7280;
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-        .form-group {
-            margin-bottom: 24px;
-        }
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-        input[type="file"] {
+        .shimmer-hover:hover::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
-            padding: 14px;
-            border: 2px dashed #e5e7eb;
-            border-radius: 12px;
-            font-size: 15px;
-            cursor: pointer;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1s ease-in-out infinite;
         }
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-        .btn-primary:hover:not(:disabled) {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .preview {
-            display: none;
-            margin-top: 16px;
-            text-align: center;
-        }
-        .preview.active {
-            display: block;
-        }
-        .preview img {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
-        }
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-        }
-        .loading.active {
-            display: block;
-        }
-        .spinner {
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #4facfe;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .result {
-            display: none;
-            margin-top: 32px;
-        }
-        .result.active {
-            display: block;
-        }
-        .result h3 {
-            font-size: 18px;
-            color: #1f2937;
-            margin-bottom: 12px;
-        }
-        textarea.description {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: inherit;
-            min-height: 150px;
-            line-height: 1.6;
-            color: #374151;
-        }
-        .btn-copy {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 12px;
-        }
-        .btn-copy:hover {
-            background: #059669;
-        }
-        .error {
-            display: none;
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-        .error.active {
-            display: block;
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <a href="/" class="back-btn">← Back to Dashboard</a>
-        
-        <div class="card">
-            <h1>🧾 Tool 3: Image to Text</h1>
-            <p class="subtitle">Generate product descriptions from your images</p>
+<body class="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden relative">
+    <!-- Ambient Glows -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-900/10 rounded-full blur-[120px]"></div>
+    </div>
 
-            <form id="describeForm">
-                <div class="form-group">
-                    <label for="imageFile">Upload Product Image</label>
-                    <input 
-                        type="file" 
-                        id="imageFile" 
-                        accept="image/*" 
-                        required
-                    >
+    <div class="relative flex h-screen w-full flex-row overflow-hidden z-10">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 border-r border-surface-border bg-background-dark/95 backdrop-blur-sm hidden md:flex flex-col justify-between p-4 z-20">
+            <div class="flex flex-col gap-8">
+                <div class="flex items-center gap-3 px-2">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-surface-border shadow-lg shadow-blue-500/20" data-alt="Abstract blue geometric logo representing AI technology" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4pwQ5VUNTUx4ZFwbiIR6dMeq15J-FUNOe05IDFxc05VxEpqR7e6tXv7vmHEqvB6Tt4KzyWHbT4Ubx44Be6CXpuntrXM133jgnVmaVbIB0i9dftpa0TrgN1cxvtnnmIl5GkFVt0H7uUdU8tgCO3rVrbzVR-Dhz0R46giPkcEb9pLMT6ZYd-6LlO2ukJ5ok82HLOrZ8r-dQSolJYS1Gi9Lyn7pxIKboOieS71ahyOAVQsHu1JVODkr6_EoD32yOBwCnvVLXznR4u9g");'></div>
+                    <h1 class="text-white text-xl font-bold leading-normal tracking-tight">AI AdGen</h1>
                 </div>
-
-                <div class="preview" id="preview">
-                    <img id="previewImage" alt="Preview">
+                <nav class="flex flex-col gap-2">
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-dark transition-colors group" href="/">
+                        <span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">dashboard</span>
+                        <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal transition-colors">Dashboard</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-dark transition-colors group" href="/tool1">
+                        <span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">image</span>
+                        <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal transition-colors">Text → Image</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-dark transition-colors group" href="/tool2">
+                        <span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">photo_camera</span>
+                        <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal transition-colors">Image → Image</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-surface-dark border border-surface-border/50 shadow-inner" href="/tool3">
+                        <span class="material-symbols-outlined text-primary">document_scanner</span>
+                        <p class="text-white text-sm font-bold leading-normal">Image → Text</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-dark transition-colors group" href="/tool4">
+                        <span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">price_check</span>
+                        <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal transition-colors">Best Price</p>
+                    </a>
+                </nav>
+            </div>
+            <div class="px-3 py-4">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-surface-dark to-background-dark border border-surface-border shadow-md">
+                    <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">JD</div>
+                    <div class="flex flex-col">
+                        <p class="text-white text-xs font-bold">John Doe</p>
+                        <p class="text-text-secondary text-[10px]">Pro Plan</p>
+                    </div>
                 </div>
+            </div>
+        </aside>
 
-                <button type="submit" class="btn btn-primary" id="submitBtn">
-                    Generate Description
-                </button>
-            </form>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Analyzing your image... (10-15 seconds)</p>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-y-auto relative bg-transparent">
+            <!-- Mobile Header -->
+            <div class="md:hidden flex items-center justify-between p-4 border-b border-surface-border bg-background-dark sticky top-0 z-10">
+                <div class="flex items-center gap-2">
+                    <div class="size-8 rounded-full bg-primary shadow-lg shadow-primary/40"></div>
+                    <span class="font-bold">AI AdGen</span>
+                </div>
+                <span class="material-symbols-outlined">menu</span>
             </div>
 
-            <div class="error" id="error"></div>
+            <div class="flex-1 p-6 md:p-8 max-w-[1400px] mx-auto w-full flex flex-col gap-6">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-2">
+                    <div class="flex flex-col gap-2">
+                        <h2 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Image to Text Tool</h2>
+                        <p class="text-text-secondary text-base font-normal">Convert product images into editable text using AI OCR.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="flex items-center justify-center size-10 rounded-lg bg-surface-dark border border-surface-border text-text-secondary hover:text-white hover:border-primary/50 transition-all shadow-sm">
+                            <span class="material-symbols-outlined">help</span>
+                        </button>
+                    </div>
+                </div>
 
-            <div class="result" id="result">
-                <h3>Product Description</h3>
-                <textarea id="descriptionText" class="description" readonly></textarea>
-                <button id="copyBtn" class="btn-copy">
-                    📋 Copy Description
-                </button>
+                <!-- Info Banner -->
+                <div class="w-full rounded-xl border border-surface-border bg-surface-dark/60 backdrop-blur-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-black/10">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-xl">info</span>
+                            <p class="text-white text-base font-bold leading-tight">How it works</p>
+                        </div>
+                        <p class="text-text-secondary text-sm font-normal leading-normal max-w-2xl pl-7">
+                            Extract text from any product image instantly using our optical character recognition AI. Supports JPG and PNG files up to 10MB.
+                        </p>
+                    </div>
+                    <button class="flex shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary/10 hover:bg-primary/20 text-primary hover:text-white border border-primary/20 hover:border-primary/50 text-xs font-bold uppercase tracking-wider transition-all">
+                        <span class="truncate">Dismiss</span>
+                    </button>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-[500px]">
+                    <!-- Left Column: Upload -->
+                    <div class="lg:col-span-5 flex flex-col gap-6 h-full">
+                        <form id="describeForm" class="flex flex-col gap-6 flex-1">
+                            <!-- Upload Zone -->
+                            <div class="flex flex-col flex-1 min-h-[300px] rounded-xl border-2 border-dashed border-surface-border bg-surface-dark/40 hover:bg-surface-dark/60 focus-within:bg-surface-dark/60 focus-within:border-primary transition-all group cursor-pointer relative overflow-hidden ring-0 focus-within:ring-1 focus-within:ring-primary/50">
+                                <input id="imageFile" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*" required/>
+                                <div class="flex flex-col items-center justify-center gap-6 p-8 h-full z-0">
+                                    <div class="size-20 rounded-full bg-surface-dark border border-surface-border flex items-center justify-center shadow-2xl group-hover:scale-110 group-focus-within:scale-110 transition-transform duration-300 shadow-black/30">
+                                        <span class="material-symbols-outlined text-primary text-4xl group-focus-within:text-white transition-colors">cloud_upload</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-2 text-center">
+                                        <p class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Upload Image</p>
+                                        <p class="text-text-secondary text-sm font-normal leading-normal max-w-[280px]">Drag & drop your image here or browse (JPG, PNG)</p>
+                                    </div>
+                                    <div class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-surface-border/50 text-white text-sm font-bold leading-normal tracking-wide group-hover:bg-primary group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] group-focus-within:bg-primary transition-all">
+                                        <span>Select File</span>
+                                    </div>
+                                </div>
+
+                                <!-- Preview -->
+                                <div id="preview" class="hidden absolute inset-0 p-4 z-20 bg-surface-dark/95 backdrop-blur-sm">
+                                    <img id="previewImage" class="w-full h-full object-contain rounded-lg" alt="Preview"/>
+                                </div>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <button type="submit" id="submitBtn" class="shimmer-hover relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 bg-gradient-to-r from-blue-600 to-cyan-400 text-white gap-3 px-6 text-base font-bold leading-normal tracking-[0.015em] shadow-[0_4px_20px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_30px_rgba(34,211,238,0.6)] transition-all transform hover:-translate-y-0.5 z-0">
+                                <span class="material-symbols-outlined text-white">auto_awesome</span>
+                                <span id="buttonText" class="truncate">Generate Text</span>
+                            </button>
+                        </form>
+
+                        <!-- Loading State -->
+                        <div id="loading" class="hidden text-center py-8">
+                            <div class="inline-block w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+                            <p class="text-text-secondary">Analyzing your image... (10-15 seconds)</p>
+                        </div>
+
+                        <!-- Error Display -->
+                        <div id="error" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm"></div>
+                    </div>
+
+                    <!-- Right Column: Result -->
+                    <div class="lg:col-span-7 flex flex-col h-full rounded-xl border border-surface-border bg-surface-dark overflow-hidden shadow-2xl shadow-black/40">
+                        <div class="flex items-center justify-between p-4 border-b border-surface-border bg-surface-dark">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-xl">terminal</span>
+                                <h3 class="text-white text-sm font-bold uppercase tracking-wider">Result Output</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-text-secondary hover:text-white transition-colors text-xs font-medium">
+                                    <span class="material-symbols-outlined text-base">edit</span>
+                                    Edit
+                                </button>
+                                <button id="copyBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/50 hover:shadow-[0_0_10px_rgba(59,130,246,0.2)] transition-all text-xs font-bold">
+                                    <span class="material-symbols-outlined text-base">content_copy</span>
+                                    Copy to Clipboard
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Result Text Area -->
+                        <div class="flex-1 bg-background-dark/50 p-6 relative overflow-y-auto custom-scrollbar">
+                            <div id="resultPlaceholder" class="flex flex-col items-center justify-center h-full text-text-secondary">
+                                <span class="material-symbols-outlined text-6xl mb-4 opacity-30">description</span>
+                                <p>Your generated description will appear here</p>
+                            </div>
+
+                            <div id="resultContent" class="hidden font-mono text-sm leading-relaxed text-gray-300 whitespace-pre-wrap"></div>
+                        </div>
+
+                        <div id="resultFooter" class="hidden px-4 py-2 bg-surface-dark border-t border-surface-border flex justify-between items-center text-[10px] text-text-secondary uppercase tracking-widest font-semibold">
+                            <span>Status: Ready</span>
+                            <span id="charCount">0 characters</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
@@ -221,10 +246,13 @@
         const previewImage = document.getElementById('previewImage');
         const form = document.getElementById('describeForm');
         const submitBtn = document.getElementById('submitBtn');
+        const buttonText = document.getElementById('buttonText');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
-        const result = document.getElementById('result');
-        const descriptionText = document.getElementById('descriptionText');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const resultContent = document.getElementById('resultContent');
+        const resultFooter = document.getElementById('resultFooter');
+        const charCount = document.getElementById('charCount');
         const copyBtn = document.getElementById('copyBtn');
 
         let base64Image = null;
@@ -237,12 +265,13 @@
                 reader.onload = (event) => {
                     base64Image = event.target.result;
                     previewImage.src = base64Image;
-                    preview.classList.add('active');
+                    preview.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         });
 
+        // Form submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -252,10 +281,11 @@
             }
 
             // Reset UI
-            error.classList.remove('active');
-            result.classList.remove('active');
-            loading.classList.add('active');
+            error.classList.add('hidden');
+            form.classList.add('hidden');
+            loading.classList.remove('hidden');
             submitBtn.disabled = true;
+            buttonText.textContent = 'Analyzing...';
 
             try {
                 const response = await fetch('/api/image-to-text', {
@@ -266,37 +296,64 @@
 
                 const data = await response.json();
 
-                loading.classList.remove('active');
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
                 submitBtn.disabled = false;
+                buttonText.textContent = 'Generate Text';
 
                 if (data.success) {
-                    descriptionText.value = data.description;
-                    result.classList.add('active');
+                    resultContent.textContent = data.description;
+                    resultPlaceholder.classList.add('hidden');
+                    resultContent.classList.remove('hidden');
+                    resultFooter.classList.remove('hidden');
+                    charCount.textContent = `${data.description.length} characters`;
                 } else {
                     showError(data.error || 'Failed to generate description');
                 }
             } catch (err) {
-                loading.classList.remove('active');
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
                 submitBtn.disabled = false;
+                buttonText.textContent = 'Generate Text';
                 showError('Network error. Make sure Colab backend is running.');
             }
         });
 
         // Copy to clipboard
-        copyBtn.addEventListener('click', () => {
-            descriptionText.select();
-            document.execCommand('copy');
-            
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '✓ Copied!';
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-            }, 2000);
+        copyBtn.addEventListener('click', async () => {
+            const text = resultContent.textContent;
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-outlined text-base">check</span> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                }, 2000);
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-outlined text-base">check</span> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                }, 2000);
+            }
         });
 
         function showError(message) {
             error.textContent = message;
-            error.classList.add('active');
+            error.classList.remove('hidden');
+            setTimeout(() => {
+                error.classList.add('hidden');
+            }, 5000);
         }
     </script>
 </body>
