@@ -47,6 +47,14 @@ def tool3():
 def tool4():
     return open(os.path.join(BASE_DIR, "templates", "tool4.html"), "r", encoding="utf-8").read()
 
+@app.route("/tool5")
+def tool5():
+    return open(os.path.join(BASE_DIR, "templates", "tool5.html"), "r", encoding="utf-8").read()
+
+@app.route("/tool6")
+def tool6():
+    return open(os.path.join(BASE_DIR, "templates", "tool6.html"), "r", encoding="utf-8").read()
+
 # ================================================================
 # Tool 1: text-to-image (Colab SD)
 # ================================================================
@@ -261,6 +269,148 @@ def api_recommend_price():
         return jsonify({"success": False, "error": str(e)}), 500
 
 # ================================================================
+# Tool 5: Inpainting / Magic Eraser (Colab SD Inpaint)
+# ================================================================
+
+@app.route("/api/inpainting", methods=["POST"])
+def inpainting():
+    data = request.get_json(force=True)
+
+    input_image_b64 = data.get("input_image", "")
+    mask_image_b64 = data.get("mask_image", "")
+    prompt = data.get("prompt", "clean background, seamless removal").strip()
+
+    if not input_image_b64 or not mask_image_b64:
+        return jsonify({"success": False, "error": "Both input_image and mask_image are required"}), 400
+
+    try:
+        # Decode input image
+        if "," in input_image_b64:
+            _, input_b64data = input_image_b64.split(",", 1)
+        else:
+            input_b64data = input_image_b64
+        input_bytes = base64.b64decode(input_b64data)
+
+        # Decode mask image
+        if "," in mask_image_b64:
+            _, mask_b64data = mask_image_b64.split(",", 1)
+        else:
+            mask_b64data = mask_image_b64
+        mask_bytes = base64.b64decode(mask_b64data)
+
+        job_id = str(int(time.time() * 1000))
+
+        # Save images to Drive
+        input_path = REQUESTS_DIR / f"{job_id}_input.png"
+        mask_path = REQUESTS_DIR / f"{job_id}_mask.png"
+        input_path.write_bytes(input_bytes)
+        mask_path.write_bytes(mask_bytes)
+
+        # Create job
+        job = {
+            "job_id": job_id,
+            "mode": "inpainting",
+            "prompt": prompt,
+        }
+        job_path = REQUESTS_DIR / f"{job_id}.json"
+        with open(job_path, "w", encoding="utf-8") as f:
+            json.dump(job, f)
+
+        # Wait for result
+        result_path = RESULTS_DIR / f"{job_id}.png"
+        timeout_seconds = 180
+        poll_interval = 2
+        waited = 0
+
+        while waited < timeout_seconds:
+            if result_path.exists():
+                img_bytes_out = result_path.read_bytes()
+                img_b64_out = base64.b64encode(img_bytes_out).decode("utf-8")
+                return jsonify({"success": True, "image": img_b64_out})
+            time.sleep(poll_interval)
+            waited += poll_interval
+
+        return jsonify({
+            "success": False,
+            "error": "Timed out waiting for Colab worker. Is the notebook running?",
+        }), 504
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ================================================================
+# Tool 6: Avatar / Virtual Try-On (Colab SD)
+# ================================================================
+
+@app.route("/api/avatar", methods=["POST"])
+def avatar():
+    data = request.get_json(force=True)
+
+    avatar_image_b64 = data.get("avatar_image", "")
+    product_image_b64 = data.get("product_image", "")
+    prompt = data.get("prompt", "").strip()  # User-provided prompt
+    product_type = data.get("product_type", "bag").strip()  # Product type for default prompt
+
+    if not avatar_image_b64 or not product_image_b64:
+        return jsonify({"success": False, "error": "Both avatar_image and product_image are required"}), 400
+
+    try:
+        # Decode avatar image
+        if "," in avatar_image_b64:
+            _, avatar_b64data = avatar_image_b64.split(",", 1)
+        else:
+            avatar_b64data = avatar_image_b64
+        avatar_bytes = base64.b64decode(avatar_b64data)
+
+        # Decode product image
+        if "," in product_image_b64:
+            _, product_b64data = product_image_b64.split(",", 1)
+        else:
+            product_b64data = product_image_b64
+        product_bytes = base64.b64decode(product_b64data)
+
+        job_id = str(int(time.time() * 1000))
+
+        # Save images to Drive
+        avatar_path = REQUESTS_DIR / f"{job_id}_avatar.png"
+        product_path = REQUESTS_DIR / f"{job_id}_product.png"
+        avatar_path.write_bytes(avatar_bytes)
+        product_path.write_bytes(product_bytes)
+
+        # Create job with prompt and product_type
+        job = {
+            "job_id": job_id,
+            "mode": "avatar",
+            "prompt": prompt,
+            "product_type": product_type,
+        }
+        job_path = REQUESTS_DIR / f"{job_id}.json"
+        with open(job_path, "w", encoding="utf-8") as f:
+            json.dump(job, f)
+
+        # Wait for result
+        result_path = RESULTS_DIR / f"{job_id}.png"
+        timeout_seconds = 180
+        poll_interval = 2
+        waited = 0
+
+        while waited < timeout_seconds:
+            if result_path.exists():
+                img_bytes_out = result_path.read_bytes()
+                img_b64_out = base64.b64encode(img_bytes_out).decode("utf-8")
+                return jsonify({"success": True, "image": img_b64_out})
+            time.sleep(poll_interval)
+            waited += poll_interval
+
+        return jsonify({
+            "success": False,
+            "error": "Timed out waiting for Colab worker. Is the notebook running?",
+        }), 504
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ================================================================
 
 if __name__ == "__main__":
     print("\n" + "="*60)
@@ -272,8 +422,11 @@ if __name__ == "__main__":
     print("Tool 2: Image → Image (Colab + SD)")
     print("Tool 3: Image → Text (Colab + Custom BLIP)")
     print("Tool 4: Best Price (Colab price model)")
+    print("Tool 5: Magic Eraser / Inpainting (Colab + SD)")
+    
     print("")
     print("⚠️  Make sure the unified Colab notebook is running for ALL tools.")
     print("="*60 + "\n")
 
     app.run(debug=True, host="0.0.0.0", port=5000)
+

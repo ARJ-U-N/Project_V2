@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 6: Virtual Try-On - AI Ad Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#22c55e",
+                        "primary-glow": "#4ade80",
+                        "secondary": "#22d3ee",
+                        "background-dark": "#02040a",
+                        "surface-dark": "#0b1121",
+                        "surface-light": "#151e32",
+                        "border-dark": "#1e293b",
+                        "text-secondary": "#94a3b8"
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px -5px rgba(34, 197, 94, 0.5)',
+                        'glow-strong': '0 0 25px -5px rgba(34, 197, 94, 0.6)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 999px;
+            transition: background 0.3s;
+        }
+
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: #334155;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -7px;
+            box-shadow: 0 0 15px 2px #22c55e;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #16a34a;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px 5px #22c55e;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(60px);
+        }
+    </style>
+</head>
+
+<body class="bg-background-dark font-display text-white overflow-hidden h-screen flex selection:bg-primary/30">
+    <div class="ambient-glow -top-32 -left-32 opacity-50"></div>
+    <div
+        class="ambient-glow bottom-0 right-0 translate-x-1/3 translate-y-1/3 bg-[radial-gradient(circle,_rgba(16,185,129,0.1)_0%,_rgba(0,0,0,0)_70%)]">
+    </div>
+
+    <!-- Sidebar -->
+    <aside
+        class="hidden md:flex flex-col w-64 h-full border-r border-white/5 bg-surface-dark/50 backdrop-blur-xl z-20 relative">
+        <div class="p-6">
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-center bg-no-repeat bg-cover rounded-xl h-10 w-10 border border-white/10 shadow-lg shadow-primary/20 flex items-center justify-center bg-gradient-to-br from-green-600 to-emerald-500">
+                    <span class="material-symbols-outlined text-white text-xl">auto_awesome</span>
+                </div>
+                <div>
+                    <h1
+                        class="text-white text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                        AI Studio</h1>
+                    <p class="text-text-secondary text-xs font-medium">Pro Plan</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">dashboard</span>
+                <span class="text-sm font-medium">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool1">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-secondary transition-colors">image</span>
+                <span class="text-sm font-medium">Text → Image</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool2">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-secondary transition-colors">photo_camera</span>
+                <span class="text-sm font-medium">Image → Image</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool3">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-purple-400 transition-colors">document_scanner</span>
+                <span class="text-sm font-medium">Image → Text</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool4">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-gray-300 transition-colors">price_check</span>
+                <span class="text-sm font-medium">Best Price</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool5">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-purple-400 transition-colors">auto_fix</span>
+                <span class="text-sm font-medium">Magic Eraser</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-white border border-primary/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.3)] relative overflow-hidden"
+                href="/tool6">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50"></div>
+                <span class="material-symbols-outlined text-[20px] text-primary relative z-10"
+                    style="font-variation-settings: 'FILL' 1;">person</span>
+                <span class="text-sm font-medium relative z-10">Virtual Try-On</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/5 bg-gradient-to-b from-transparent to-black/20">
+            <div
+                class="flex items-center gap-3 px-4 py-2 text-text-secondary hover:text-white cursor-pointer transition-colors group">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-red-400 transition-colors">logout</span>
+                <span class="text-sm font-medium">Sign Out</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+        <header
+            class="flex items-center justify-between px-8 py-5 border-b border-white/5 bg-surface-dark/30 backdrop-blur-md z-10">
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    Virtual Try-On
+                    <span
+                        class="px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-[10px] font-bold text-primary tracking-wider uppercase">Avatar</span>
+                </h2>
+                <p class="text-text-secondary text-sm mt-1">Visualize products on people. Upload a person and a product
+                    to blend them together.</p>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 md:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full min-h-[600px]">
+                <!-- Left Column: Form -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <!-- Info Banner -->
+                    <div
+                        class="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 to-surface-light p-4 shadow-lg shadow-primary/5">
+                        <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-primary/20 blur-2xl rounded-full">
+                        </div>
+                        <div class="flex items-start gap-3 relative z-10">
+                            <div class="p-2 rounded-lg bg-primary/20 text-primary">
+                                <span class="material-symbols-outlined text-[20px]">lightbulb</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-white">Pro Tip</p>
+                                <p class="text-xs text-text-secondary mt-1 leading-relaxed">For best results, use a
+                                    clear front-facing photo of a person and a product image with transparent
+                                    background.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="avatarForm" class="flex flex-col gap-6">
+                        <!-- Avatar/Person Upload -->
+                        <div class="flex flex-col gap-2">
+                            <h3
+                                class="text-xs uppercase tracking-wider font-bold text-text-secondary ml-1 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[16px]">person</span>
+                                Person / Avatar Image
+                            </h3>
+                            <div
+                                class="group relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/10 bg-surface-dark px-4 py-6 transition-all duration-300 hover:border-primary/50 hover:bg-surface-light">
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center rounded-full bg-surface-light group-hover:bg-primary/20 transition-all">
+                                    <span
+                                        class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors text-[20px]">person_add</span>
+                                </div>
+                                <div class="text-center">
+                                    <p
+                                        class="text-white text-sm font-medium group-hover:text-primary transition-colors">
+                                        Upload Person Image</p>
+                                    <p class="text-text-secondary text-xs mt-0.5">PNG, JPG (Max 10MB)</p>
+                                </div>
+                                <input id="avatarFile" class="absolute inset-0 cursor-pointer opacity-0" type="file"
+                                    accept="image/*" required />
+                            </div>
+                            <div id="avatarPreview"
+                                class="hidden mt-2 rounded-lg overflow-hidden border border-white/10">
+                                <img id="avatarPreviewImg" class="w-full h-32 object-cover" alt="Avatar Preview" />
+                            </div>
+                        </div>
+
+                        <!-- Product Upload -->
+                        <div class="flex flex-col gap-2">
+                            <h3
+                                class="text-xs uppercase tracking-wider font-bold text-text-secondary ml-1 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary text-[16px]">checkroom</span>
+                                Product Image
+                            </h3>
+                            <div
+                                class="group relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/10 bg-surface-dark px-4 py-6 transition-all duration-300 hover:border-secondary/50 hover:bg-surface-light">
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center rounded-full bg-surface-light group-hover:bg-secondary/20 transition-all">
+                                    <span
+                                        class="material-symbols-outlined text-text-secondary group-hover:text-secondary transition-colors text-[20px]">shopping_bag</span>
+                                </div>
+                                <div class="text-center">
+                                    <p
+                                        class="text-white text-sm font-medium group-hover:text-secondary transition-colors">
+                                        Upload Product Image</p>
+                                    <p class="text-text-secondary text-xs mt-0.5">PNG, JPG (Max 10MB)</p>
+                                </div>
+                                <input id="productFile" class="absolute inset-0 cursor-pointer opacity-0" type="file"
+                                    accept="image/*" required />
+                            </div>
+                            <div id="productPreview"
+                                class="hidden mt-2 rounded-lg overflow-hidden border border-white/10">
+                                <img id="productPreviewImg" class="w-full h-32 object-cover" alt="Product Preview" />
+                            </div>
+                        </div>
+
+                        <!-- Generation Settings -->
+                        <div class="flex flex-col gap-4 rounded-xl border border-white/5 bg-surface-dark p-5">
+                            <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+                                <span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Generation Settings
+                                </h3>
+                            </div>
+
+                            <!-- Product Type Dropdown -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-medium text-text-secondary">Product Type</label>
+                                <select id="productType"
+                                    class="w-full rounded-lg border border-white/10 bg-surface-light px-4 py-3 text-white text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all">
+                                    <option value="bag">Bag / Handbag</option>
+                                    <option value="watch">Watch</option>
+                                    <option value="phone">Phone / Device</option>
+                                    <option value="bottle">Bottle / Drink</option>
+                                    <option value="box">Box / Package</option>
+                                    <option value="product">Generic Product</option>
+                                </select>
+                            </div>
+
+                            <!-- Custom Prompt Input -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-medium text-text-secondary">Custom Prompt (Optional)</label>
+                                <textarea id="customPrompt" rows="3"
+                                    placeholder="Leave empty for default prompt, or enter a custom prompt like:&#10;medium shot of a person holding a bag in their hands, arms extending to hold the object, natural grip, fingers visible..."
+                                    class="w-full rounded-lg border border-white/10 bg-surface-light px-4 py-3 text-white text-sm placeholder-text-secondary/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all resize-none"></textarea>
+                                <p class="text-xs text-text-secondary">Default: AI will generate arms/hands holding the
+                                    product naturally</p>
+                            </div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button type="submit" id="submitBtn"
+                            class="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 p-[1px] shadow-glow hover:shadow-glow-strong transition-all duration-300">
+                            <div
+                                class="relative flex items-center justify-center gap-2 rounded-xl bg-surface-dark/40 backdrop-blur-sm px-6 py-4 transition-all group-hover:bg-transparent h-full w-full">
+                                <span class="material-symbols-outlined text-white z-10">auto_awesome</span>
+                                <span id="buttonText" class="text-base font-bold text-white z-10 tracking-wide">Generate
+                                    Try-On</span>
+                            </div>
+                        </button>
+                    </form>
+
+                    <!-- Loading State -->
+                    <div id="loading" class="hidden text-center py-8">
+                        <div
+                            class="inline-block w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4">
+                        </div>
+                        <p class="text-text-secondary">Creating virtual try-on... (20-40 seconds)</p>
+                    </div>
+
+                    <!-- Error Display -->
+                    <div id="error"
+                        class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <!-- Right Column: Result Display -->
+                <div
+                    class="lg:col-span-8 flex flex-col h-full rounded-2xl border border-white/10 bg-[#050914] overflow-hidden shadow-2xl relative group/preview">
+                    <!-- Download Button -->
+                    <button id="downloadBtn"
+                        class="hidden absolute top-6 right-6 z-30 flex items-center gap-2 rounded-lg bg-white hover:bg-gray-100 text-black px-4 py-2.5 text-sm font-bold shadow-lg transition-all">
+                        <span class="material-symbols-outlined text-[20px]">download</span>
+                        Download
+                    </button>
+
+                    <!-- Result Container -->
+                    <div
+                        class="relative w-full h-full flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#111827] to-[#02040a]">
+                        <div class="absolute inset-0 z-0 opacity-[0.03]"
+                            style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 40px 40px;">
+                        </div>
+
+                        <!-- Placeholder -->
+                        <div id="imagePlaceholder" class="relative z-10 text-center text-text-secondary">
+                            <span class="material-symbols-outlined text-6xl mb-4 opacity-30">person</span>
+                            <p>Your virtual try-on result will appear here</p>
+                        </div>
+
+                        <!-- Result Image Container -->
+                        <div id="resultContainer"
+                            class="hidden relative z-10 h-[85%] w-[90%] max-w-4xl overflow-hidden rounded-lg shadow-2xl border border-white/10">
+                            <div class="absolute top-4 left-4 z-30 flex flex-col gap-2 items-start">
+                                <span
+                                    class="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-mono font-bold px-2 py-1 rounded border border-white/10">
+                                    Virtual Try-On
+                                </span>
+                                <span
+                                    class="bg-primary/90 backdrop-blur-md text-black text-[10px] font-bold px-2 py-1 rounded border border-white/10 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[12px]">check_circle</span> Ready
+                                </span>
+                            </div>
+                            <img id="resultImage" class="w-full h-full object-contain" alt="Virtual try-on result" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const avatarFile = document.getElementById('avatarFile');
+        const productFile = document.getElementById('productFile');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const avatarPreviewImg = document.getElementById('avatarPreviewImg');
+        const productPreview = document.getElementById('productPreview');
+        const productPreviewImg = document.getElementById('productPreviewImg');
+        const productTypeSelect = document.getElementById('productType');
+        const customPromptInput = document.getElementById('customPrompt');
+        const form = document.getElementById('avatarForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const buttonText = document.getElementById('buttonText');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const resultImage = document.getElementById('resultImage');
+        const resultContainer = document.getElementById('resultContainer');
+        const imagePlaceholder = document.getElementById('imagePlaceholder');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let avatarBase64 = null;
+        let productBase64 = null;
+
+        // Preview avatar image
+        avatarFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    avatarBase64 = event.target.result;
+                    avatarPreviewImg.src = avatarBase64;
+                    avatarPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Preview product image
+        productFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    productBase64 = event.target.result;
+                    productPreviewImg.src = productBase64;
+                    productPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!avatarBase64) {
+                showError('Please upload a person/avatar image');
+                return;
+            }
+
+            if (!productBase64) {
+                showError('Please upload a product image');
+                return;
+            }
+
+            const productType = productTypeSelect.value;
+            const customPrompt = customPromptInput.value.trim();
+
+            // Reset UI
+            error.classList.add('hidden');
+            form.classList.add('hidden');
+            loading.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/avatar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        avatar_image: avatarBase64,
+                        product_image: productBase64,
+                        product_type: productType,
+                        prompt: customPrompt
+                    })
+                });
+
+                const data = await response.json();
+
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    const imageData = `data:image/png;base64,${data.image}`;
+                    resultImage.src = imageData;
+                    imagePlaceholder.classList.add('hidden');
+                    resultContainer.classList.remove('hidden');
+                    downloadBtn.classList.remove('hidden');
+
+                    // Setup download
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = imageData;
+                        link.download = 'virtual-tryon-result.png';
+                        link.click();
+                    };
+                } else {
+                    showError(data.error || 'Failed to generate try-on');
+                }
+            } catch (err) {
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
+                submitBtn.disabled = false;
+                showError('Network error. Make sure Colab backend is running.');
+            }
+        });
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.remove('hidden');
+            setTimeout(() => {
+                error.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 5: Magic Eraser - AI Ad Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#a855f7",
+                        "primary-glow": "#c084fc",
+                        "secondary": "#22d3ee",
+                        "background-dark": "#02040a",
+                        "surface-dark": "#0b1121",
+                        "surface-light": "#151e32",
+                        "border-dark": "#1e293b",
+                        "text-secondary": "#94a3b8"
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(60px);
+        }
+
+        #drawCanvas {
+            cursor: crosshair;
+        }
+    </style>
+</head>
+
+<body class="bg-background-dark font-display text-white overflow-hidden h-screen flex selection:bg-primary/30">
+    <div class="ambient-glow -top-32 -left-32 opacity-50"></div>
+    <div
+        class="ambient-glow bottom-0 right-0 translate-x-1/3 translate-y-1/3 bg-[radial-gradient(circle,_rgba(236,72,153,0.1)_0%,_rgba(0,0,0,0)_70%)]">
+    </div>
+
+    <!-- Sidebar -->
+    <aside
+        class="hidden md:flex flex-col w-64 h-full border-r border-white/5 bg-surface-dark/50 backdrop-blur-xl z-20 relative">
+        <div class="p-6">
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-center bg-no-repeat bg-cover rounded-xl h-10 w-10 border border-white/10 shadow-lg shadow-primary/20 flex items-center justify-center bg-gradient-to-br from-purple-600 to-pink-500">
+                    <span class="material-symbols-outlined text-white text-xl">auto_awesome</span>
+                </div>
+                <div>
+                    <h1
+                        class="text-white text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                        AI Studio</h1>
+                    <p class="text-text-secondary text-xs font-medium">Pro Plan</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">dashboard</span>
+                <span class="text-sm font-medium">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool1">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-secondary transition-colors">image</span>
+                <span class="text-sm font-medium">Text → Image</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool2">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-secondary transition-colors">photo_camera</span>
+                <span class="text-sm font-medium">Image → Image</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool3">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-purple-400 transition-colors">document_scanner</span>
+                <span class="text-sm font-medium">Image → Text</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool4">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-gray-300 transition-colors">price_check</span>
+                <span class="text-sm font-medium">Best Price</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-white border border-primary/20 shadow-[0_0_15px_-5px_rgba(168,85,247,0.3)] relative overflow-hidden"
+                href="/tool5">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50"></div>
+                <span class="material-symbols-outlined text-[20px] text-primary relative z-10"
+                    style="font-variation-settings: 'FILL' 1;">auto_fix</span>
+                <span class="text-sm font-medium relative z-10">Magic Eraser</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-white/5 hover:text-white transition-all duration-200 group"
+                href="/tool6">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-green-400 transition-colors">person</span>
+                <span class="text-sm font-medium">Virtual Try-On</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/5 bg-gradient-to-b from-transparent to-black/20">
+            <div
+                class="flex items-center gap-3 px-4 py-2 text-text-secondary hover:text-white cursor-pointer transition-colors group">
+                <span
+                    class="material-symbols-outlined text-[20px] group-hover:text-red-400 transition-colors">logout</span>
+                <span class="text-sm font-medium">Sign Out</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+        <header
+            class="flex items-center justify-between px-8 py-5 border-b border-white/5 bg-surface-dark/30 backdrop-blur-md z-10">
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    Magic Eraser
+                    <span
+                        class="px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-[10px] font-bold text-primary tracking-wider uppercase">Inpainting</span>
+                </h2>
+                <p class="text-text-secondary text-sm mt-1">Draw over objects you want to remove and let AI fill in the
+                    background.</p>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 md:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full min-h-[600px]">
+                <!-- Left Column: Controls -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <!-- Instructions -->
+                    <div
+                        class="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 to-surface-light p-4 shadow-lg shadow-primary/5">
+                        <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-primary/20 blur-2xl rounded-full">
+                        </div>
+                        <div class="flex items-start gap-3 relative z-10">
+                            <div class="p-2 rounded-lg bg-primary/20 text-primary">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-white">How to Use</p>
+                                <ol
+                                    class="text-xs text-text-secondary mt-1 leading-relaxed list-decimal list-inside space-y-1">
+                                    <li>Upload an image below</li>
+                                    <li>Draw a rectangle over the area to remove</li>
+                                    <li>Click "Erase & Generate"</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="eraserForm" class="flex flex-col gap-6">
+                        <!-- Upload Section -->
+                        <div class="flex flex-col gap-2">
+                            <h3
+                                class="text-xs uppercase tracking-wider font-bold text-text-secondary ml-1 flex items-center gap-2">
+                                Source Image
+                                <span class="h-px w-full bg-white/10 block"></span>
+                            </h3>
+                            <div
+                                class="group relative flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-white/10 bg-surface-dark px-6 py-8 transition-all duration-300 hover:border-primary/50 hover:bg-surface-light focus-within:border-primary">
+                                <div
+                                    class="flex h-12 w-12 items-center justify-center rounded-full bg-surface-light group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
+                                    <span
+                                        class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors text-[24px]">cloud_upload</span>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-white text-sm font-bold group-hover:text-primary transition-colors">
+                                        Click or Drop Image</p>
+                                    <p class="text-text-secondary text-xs mt-1">PNG, JPG, WEBP (Max 25MB)</p>
+                                </div>
+                                <input id="imageFile" aria-label="Upload source image"
+                                    class="absolute inset-0 cursor-pointer opacity-0" type="file" accept="image/*"
+                                    required />
+                            </div>
+                        </div>
+
+                        <!-- Brush Settings -->
+                        <div class="flex flex-col gap-4 rounded-xl border border-white/5 bg-surface-dark p-5">
+                            <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+                                <span class="material-symbols-outlined text-primary text-[20px]">brush</span>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Brush Settings</h3>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <label class="text-sm font-medium text-text-secondary">Brush Size: <span
+                                        id="brushSizeValue" class="text-white">30</span>px</label>
+                                <input id="brushSize" type="range" min="10" max="100" value="30"
+                                    class="w-full accent-primary" />
+                            </div>
+
+                            <button type="button" id="clearBtn"
+                                class="flex items-center justify-center gap-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 py-2.5 text-sm font-medium text-text-secondary hover:text-white transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">refresh</span>
+                                Clear Drawing
+                            </button>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button type="submit" id="submitBtn"
+                            class="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 p-[1px] shadow-[0_0_20px_-5px_rgba(168,85,247,0.5)] hover:shadow-[0_0_25px_-5px_rgba(236,72,153,0.6)] transition-all duration-300">
+                            <div
+                                class="relative flex items-center justify-center gap-2 rounded-xl bg-surface-dark/40 backdrop-blur-sm px-6 py-4 transition-all group-hover:bg-transparent h-full w-full">
+                                <span class="material-symbols-outlined text-white z-10">auto_fix</span>
+                                <span id="buttonText" class="text-base font-bold text-white z-10 tracking-wide">Erase &
+                                    Generate</span>
+                            </div>
+                        </button>
+                    </form>
+
+                    <!-- Loading State -->
+                    <div id="loading" class="hidden text-center py-8">
+                        <div
+                            class="inline-block w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4">
+                        </div>
+                        <p class="text-text-secondary">Removing objects... (15-30 seconds)</p>
+                    </div>
+
+                    <!-- Error Display -->
+                    <div id="error"
+                        class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <!-- Right Column: Canvas & Result -->
+                <div class="lg:col-span-8 flex flex-col h-full gap-6">
+                    <!-- Canvas Container -->
+                    <div id="canvasContainer"
+                        class="flex-1 rounded-2xl border border-white/10 bg-[#050914] overflow-hidden shadow-2xl relative">
+                        <div class="absolute inset-0 z-0 opacity-[0.03]"
+                            style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 40px 40px;">
+                        </div>
+
+                        <!-- Placeholder -->
+                        <div id="canvasPlaceholder" class="absolute inset-0 flex items-center justify-center z-10">
+                            <div class="text-center text-text-secondary">
+                                <span class="material-symbols-outlined text-6xl mb-4 opacity-30">image</span>
+                                <p>Upload an image to start erasing</p>
+                            </div>
+                        </div>
+
+                        <!-- Drawing Canvas -->
+                        <canvas id="drawCanvas" class="hidden absolute inset-0 w-full h-full z-20"></canvas>
+
+                        <!-- Result Image -->
+                        <img id="resultImage" class="hidden absolute inset-0 w-full h-full object-contain z-30"
+                            alt="Result" />
+                    </div>
+
+                    <!-- Download Button -->
+                    <button id="downloadBtn"
+                        class="hidden self-end flex items-center gap-2 rounded-lg bg-white hover:bg-gray-100 text-black px-6 py-3 text-sm font-bold shadow-lg transition-all">
+                        <span class="material-symbols-outlined text-[20px]">download</span>
+                        Download Result
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const imageFile = document.getElementById('imageFile');
+        const drawCanvas = document.getElementById('drawCanvas');
+        const ctx = drawCanvas.getContext('2d');
+        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const brushSizeSlider = document.getElementById('brushSize');
+        const brushSizeValue = document.getElementById('brushSizeValue');
+        const clearBtn = document.getElementById('clearBtn');
+        const form = document.getElementById('eraserForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const buttonText = document.getElementById('buttonText');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let originalImage = null;
+        let isDrawing = false;
+        let startX, startY;
+        let drawnRects = [];
+
+        // Load image onto canvas
+        imageFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        originalImage = img;
+
+                        // Set canvas size to match container
+                        const containerRect = canvasContainer.getBoundingClientRect();
+                        drawCanvas.width = containerRect.width;
+                        drawCanvas.height = containerRect.height;
+
+                        // Draw image scaled to fit
+                        drawImageScaled(img);
+
+                        canvasPlaceholder.classList.add('hidden');
+                        drawCanvas.classList.remove('hidden');
+                        resultImage.classList.add('hidden');
+                        downloadBtn.classList.add('hidden');
+                        drawnRects = [];
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function drawImageScaled(img) {
+            const canvas = drawCanvas;
+            const hRatio = canvas.width / img.width;
+            const vRatio = canvas.height / img.height;
+            const ratio = Math.min(hRatio, vRatio);
+            const centerX = (canvas.width - img.width * ratio) / 2;
+            const centerY = (canvas.height - img.height * ratio) / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerX, centerY, img.width * ratio, img.height * ratio);
+
+            // Redraw existing rectangles
+            drawnRects.forEach(rect => {
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+            });
+        }
+
+        // Brush size slider
+        brushSizeSlider.addEventListener('input', (e) => {
+            brushSizeValue.textContent = e.target.value;
+        });
+
+        // Clear drawing
+        clearBtn.addEventListener('click', () => {
+            if (originalImage) {
+                drawnRects = [];
+                drawImageScaled(originalImage);
+            }
+        });
+
+        // Drawing functionality - Rectangle selection
+        drawCanvas.addEventListener('mousedown', (e) => {
+            if (!originalImage) return;
+            isDrawing = true;
+            const rect = drawCanvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+        });
+
+        drawCanvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing || !originalImage) return;
+
+            const rect = drawCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            // Redraw image and existing rects
+            drawImageScaled(originalImage);
+
+            // Draw current selection rectangle
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.fillRect(startX, startY, currentX - startX, currentY - startY);
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+            ctx.setLineDash([]);
+        });
+
+        drawCanvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing || !originalImage) return;
+            isDrawing = false;
+
+            const rect = drawCanvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+
+            // Add rectangle to list
+            const rectW = endX - startX;
+            const rectH = endY - startY;
+            if (Math.abs(rectW) > 10 && Math.abs(rectH) > 10) {
+                drawnRects.push({
+                    x: Math.min(startX, endX),
+                    y: Math.min(startY, endY),
+                    w: Math.abs(rectW),
+                    h: Math.abs(rectH)
+                });
+            }
+
+            drawImageScaled(originalImage);
+        });
+
+        drawCanvas.addEventListener('mouseleave', () => {
+            if (isDrawing && originalImage) {
+                isDrawing = false;
+                drawImageScaled(originalImage);
+            }
+        });
+
+        // Generate mask and submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!originalImage) {
+                showError('Please upload an image first');
+                return;
+            }
+
+            if (drawnRects.length === 0) {
+                showError('Please draw over the area you want to remove');
+                return;
+            }
+
+            // Get original image as base64
+            const imgCanvas = document.createElement('canvas');
+            imgCanvas.width = originalImage.width;
+            imgCanvas.height = originalImage.height;
+            const imgCtx = imgCanvas.getContext('2d');
+            imgCtx.drawImage(originalImage, 0, 0);
+            const inputImageBase64 = imgCanvas.toDataURL('image/png');
+
+            // Create mask (black background, white where selected)
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = originalImage.width;
+            maskCanvas.height = originalImage.height;
+            const maskCtx = maskCanvas.getContext('2d');
+
+            // Fill with black
+            maskCtx.fillStyle = 'black';
+            maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+            // Calculate scale from display canvas to original image
+            const hRatio = drawCanvas.width / originalImage.width;
+            const vRatio = drawCanvas.height / originalImage.height;
+            const ratio = Math.min(hRatio, vRatio);
+            const offsetX = (drawCanvas.width - originalImage.width * ratio) / 2;
+            const offsetY = (drawCanvas.height - originalImage.height * ratio) / 2;
+
+            // Draw white rectangles where selected
+            maskCtx.fillStyle = 'white';
+            drawnRects.forEach(rect => {
+                const scaledX = (rect.x - offsetX) / ratio;
+                const scaledY = (rect.y - offsetY) / ratio;
+                const scaledW = rect.w / ratio;
+                const scaledH = rect.h / ratio;
+                maskCtx.fillRect(scaledX, scaledY, scaledW, scaledH);
+            });
+
+            const maskImageBase64 = maskCanvas.toDataURL('image/png');
+
+            // Reset UI
+            error.classList.add('hidden');
+            form.classList.add('hidden');
+            loading.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/inpainting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        input_image: inputImageBase64,
+                        mask_image: maskImageBase64,
+                        prompt: 'clean background, seamless, high quality'
+                    })
+                });
+
+                const data = await response.json();
+
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    const imageData = `data:image/png;base64,${data.image}`;
+                    resultImage.src = imageData;
+                    resultImage.classList.remove('hidden');
+                    drawCanvas.classList.add('hidden');
+                    downloadBtn.classList.remove('hidden');
+
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = imageData;
+                        link.download = 'magic-eraser-result.png';
+                        link.click();
+                    };
+                } else {
+                    showError(data.error || 'Failed to process image');
+                }
+            } catch (err) {
+                loading.classList.add('hidden');
+                form.classList.remove('hidden');
+                submitBtn.disabled = false;
+                showError('Network error. Make sure Colab backend is running.');
+            }
+        });
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.remove('hidden');
+            setTimeout(() => {
+                error.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>
